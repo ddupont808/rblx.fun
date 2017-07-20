@@ -254,7 +254,7 @@
             document.getElementById('spinFrame').innerHTML = "";
             document.getElementById('caseInventory').innerHTML = "";
             for (var j = 0; j < 25; j++) {
-                var shuffledItems = shuffle(items);
+                var shuffledItems = shuffle(items.slice(0));
                 for (var i = 0; i < items.length; i++) {
                     var item = shuffledItems[i];
                     var itemCard = htmlToElement(atob(itemTemplate).format(removeTags(item.img), removeTags(item.name), getValue(item.price), ''));
