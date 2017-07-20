@@ -11,12 +11,46 @@
 
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-</head>
-<body>
+
     <!--Import jQuery before materialize.js-->
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.0/js/materialize.min.js"></script>
 
+    <style>
+        .modal {
+            max-height: 90%;
+        }
+
+        .modal-form-row {
+            margin-bottom: 0px;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            // the "href" attribute of the modal trigger must specify the modal ID that wants to be triggered
+            $('.modal').modal();
+            $('ul.tabs').tabs();
+        });
+
+        $("#signup_pass").on("focusout", function (e) {
+            if ($(this).val() != $("#signup_confirmpass").val()) {
+                $("#signup_confirmpass").removeClass("valid").addClass("invalid");
+            } else {
+                $("#signup_confirmpass").removeClass("invalid").addClass("valid");
+            }
+        });
+
+        $("#signup_confirmpass").on("keyup", function (e) {
+            if ($("#signup_pass").val() != $(this).val()) {
+                $(this).removeClass("valid").addClass("invalid");
+            } else {
+                $(this).removeClass("invalid").addClass("valid");
+            }
+        });
+    </script>
+</head>
+<body>
     <nav class="light-blue lighten-1" role="navigation">
         <div class="nav-wrapper container">
             <a id="logo-container" href="#" class="brand-logo"><img src="https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/logo.png" style="padding-top: 4px; height: 60px;" /></a>
@@ -24,18 +58,106 @@
                 <li><a href="#">Cases</a></li>
                 <li><a href="#">Deposit</a></li>
                 <li><a href="#">Inventory</a></li>
-                <a href="#" class="btn waves-effect waves-light orange">Sign In</a>
+                <a href="#signin" class="btn waves-effect waves-light orange modal-trigger">Sign In</a>
             </ul>
 
             <ul id="nav-mobile" class="side-nav" style="transform: translateX(-100%);">
                 <li><a href="#">Cases</a></li>
                 <li><a href="#">Deposit</a></li>
                 <li><a href="#">Inventory</a></li>
-                <li><a href="#">Sign In</a></li>
+                <a href="#signin" class="btn waves-effect waves-light orange modal-trigger">Sign In</a>
             </ul>
             <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
         </div>
     </nav>
+
+    <div id="signin" class="modal" style="width:20%">
+        <div class="modal-header">
+            <div class="row">
+                <div class="col s12">
+                    <ul class="tabs">
+                        <li class="tab col s6"><a class="active" href="#sign-in">Sign In</a></li>
+                        <li class="tab col s6"><a href="#sign-up">Sign Up</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div id="sign-in">
+            <div class="modal-content">
+                <h4>Sign In</h4>
+
+                <div class="row">
+                    <form class="col s12">
+                        <div class="row modal-form-row">
+                            <div class="input-field col s12">
+                                <input id="signin_user" type="text" class="validate">
+                                <label for="signin_user">Username</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input id="signin_pass" type="password" class="validate">
+                                <label for="signin_pass">Password</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <p>
+                                <input type="checkbox" class="filled-in" id="rememberMe" />
+                                <label for="rememberMe">Remember me</label>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="modal-action modal-close btn waves-effect waves-light orange">Sign In</a>
+            </div>
+        </div>
+        <div id="sign-up">
+            <div class="modal-content">
+                <h4>Sign Up</h4>
+
+                <div class="row">
+                    <form class="col s12">
+                        <div class="row modal-form-row">
+                            <div class="input-field col s12">
+                                <input id="signup_user" type="text" class="validate">
+                                <label for="signup_user">Username</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input id="signup_pass" type="password" class="validate">
+                                <label for="signup_pass">Password</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input id="signup_confirmpass" type="password">
+                                <label for="signup_confirmpass" data-error="Password not match" data-success="Password Match">Password (Confirm)</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <p>
+                                <input type="checkbox" class="filled-in" id="over18" />
+                                <label for="over18">I am over 18</label>
+                            </p>
+                        </div>
+                        <div class="row">
+                            <p class="input-field">
+                                <input type="checkbox" class="filled-in" id="tos" />
+                                <label for="tos">I agree to the <a href="http://kazok.men/">terms and conditions</a></label>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="modal-action modal-close btn waves-effect waves-light orange">Sign Up</a>
+            </div>
+        </div>
+    </div>
+
     <div class="section no-pad-bot" id="index-banner">
         <div class="container">
             <br><br>
