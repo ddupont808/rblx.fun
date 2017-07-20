@@ -79,6 +79,17 @@
             z-index: 10;
             box-shadow: -1px 1px 8px 1px rgba(50,50,50,.75);
         }
+
+        .case-items {
+            border-radius: 4px;
+            border: 1px solid rgba(0, 0, 0, 0.14);
+            width: 100%;
+            position: relative;
+        }
+
+        .winning-numbers {
+            content: " ";
+        }
     </style>
 
     <script>
@@ -113,8 +124,8 @@
 
     <script>
         var cardTemplate = "PGRpdiBjbGFzcz0iY2FyZCBpdGVtIj4KCTxkaXYgY2xhc3M9ImNhcmQtaW1hZ2UiPgoJCTxpbWcgc3JjPSJ7MH0iPgoJCTxzcGFuIGNsYXNzPSJjcmF0ZS1wcmV2aWV3Ij48aW1nIHNyYz0iezN9Ij48L3NwYW4+Cgk8L2Rpdj4KCTxkaXYgY2xhc3M9ImNhcmQtY29udGVudCI+CgkJPHNwYW4gY2xhc3M9ImNhcmQtdGl0bGUiPnsxfTwvc3Bhbj4KCQk8ZGl2IGNsYXNzPSJjb2wgczYiPgoJCQk8c3BhbiBjbGFzcz0iZ3JleS10ZXh0Ij4KCQkJCVByaWNlCgkJCTwvc3Bhbj4KCQk8L2Rpdj4KCQk8ZGl2IGNsYXNzPSJjb2wgczYiPgoJCQk8c3BhbiBjbGFzcz0iZ3JlZW4tdGV4dCBhbGlnbi1wcmljZSI+CgkJCQk8aW1nIHN0eWxlPSJtYXgtaGVpZ2h0OiAyMHB4OyIgc3JjPSIvL3JieC5wbGFjZS9pbWcvZnVuZHMucG5nIiAvPgoJCQkJezJ9CgkJCTwvc3Bhbj4KCQk8L2Rpdj4KCTwvZGl2PgoJPGRpdiBjbGFzcz0iY2FyZC1hY3Rpb24iPgoJCTxzcGFuIGNsYXNzPSJidG4gd2F2ZXMtZWZmZWN0IHdhdmVzLWxpZ2h0IGdyZWVuIiBvbmNsaWNrPSJkaXNwbGF5Q3JhdGVPcGVuZXIodGhpcyk7Ij5PUEVOIENSQVRFPC9zcGFuPgoJPC9kaXY+CjwvZGl2Pg==";
-        var itemTemplate = "PGRpdiBjbGFzcz0iY2FyZCBjcmF0ZS1pdGVtIj4KCTxkaXYgY2xhc3M9ImNhcmQtaW1hZ2UiIHN0eWxlPSJib3JkZXItYm90dG9tOiAxcHggc29saWQgcmdiYSgwLCAwLCAwLCAwLjEpIj4KCQk8aW1nIHNyYz0iezB9Ij4KCTwvZGl2PgoJPGRpdiBjbGFzcz0iY2FyZC1jb250ZW50IiBzdHlsZT0icGFkZGluZzogNHB4IDRweCA0cHggNHB4Ij4KCQk8cD57MX08L3A+CgkJPGRpdiBjbGFzcz0iY29sIHMxMiI+CgkJCTxzcGFuIGNsYXNzPSJncmVlbi10ZXh0IGFsaWduLXByaWNlIj4KCQkJCTxpbWcgc3R5bGU9Im1heC1oZWlnaHQ6IDIwcHg7IiBzcmM9Ii8vcmJ4LnBsYWNlL2ltZy9mdW5kcy5wbmciIC8+CgkJCQl7Mn0KCQkJPC9zcGFuPgoJCTwvZGl2PgoJPC9kaXY+CjwvZGl2Pg==";
-
+        var itemTemplate = "PGRpdiBjbGFzcz0iY2FyZCBjcmF0ZS1pdGVtIj4KCTxkaXYgY2xhc3M9ImNhcmQtaW1hZ2UiIHN0eWxlPSJib3JkZXItYm90dG9tOiAxcHggc29saWQgcmdiYSgwLCAwLCAwLCAwLjEpIj4KCQk8aW1nIHNyYz0iezB9Ij4KCTwvZGl2PgoJPGRpdiBjbGFzcz0iY2FyZC1jb250ZW50IiBzdHlsZT0icGFkZGluZzogNHB4IDRweCA0cHggNHB4Ij4KCQk8cD57MX08L3A+CgkJPHAgY2xhc3M9ImdyZXktdGV4dCI+ezN9PC9wPgoJCTxkaXYgY2xhc3M9ImNvbCBzMTIiPgoJCQk8c3BhbiBjbGFzcz0iZ3JlZW4tdGV4dCBhbGlnbi1wcmljZSI+CgkJCQk8aW1nIHN0eWxlPSJtYXgtaGVpZ2h0OiAyMHB4OyIgc3JjPSIvL3JieC5wbGFjZS9pbWcvZnVuZHMucG5nIiAvPgoJCQkJezJ9CgkJCTwvc3Bhbj4KCQk8L2Rpdj4KCTwvZGl2Pgo8L2Rpdj4=";
+        
         if (!String.prototype.format) {
             String.prototype.format = function () {
                 var args = arguments;
@@ -161,9 +172,25 @@
         }
 
         function testSpin() {
-            var targetItem = "Blond Spiked Hair";
+            var targetItem = "";
             var spinFrame = document.getElementById('spinFrame');
             var crate = spinFrame.children;
+
+            var winningNumber = parseInt(Math.random() * spinFrame.winningNumbers);
+            console.log("New Test Spin!\nWinning Number: " + winningNumber + "\nPrize: " + targetItem);
+
+            var winningNumbers = 0;
+            var items = spinFrame.items;
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                var numbersRange = winningNumbers + item.tickets;
+
+                if (winningNumber >= winningNumbers && winningNumber < numbersRange) {
+                    targetItem = item.name;
+                }
+
+                winningNumbers = numbersRange;
+            }
 
             var audio = new Audio('https://raw.githubusercontent.com/Cryption/rblx.fun/master/tick.wav');
 
@@ -197,38 +224,56 @@
             var items = [{
                     img: "https://t2.rbxcdn.com/82cb24afec92ee77269760a7c0e522a2",
                     name: "Domino Crown",
-                    price: 7000000
+                    price: 7000000,
+                    tickets: 1
                 }, {
                     img: "https://t4.rbxcdn.com/d8df9a201fe4530dc87a103019bbaee5",
                     name: "Rainbow Shaggy",
-                    price: 2399999
+                    price: 2399999,
+                    tickets: 1
                 }, {
                     img: "https://t2.rbxcdn.com/c9b13158b51ab0b40bc8d9d5adb3e9a4",
                     name: "Dominus Fridgus",
-                    price: 10000000
+                    price: 10000000,
+                    tickets: 1
                 }, {
                     img: "https://t5.rbxcdn.com/d732f08c22bd856893d57487c8fa10df",
                     name: "Bling $$ Necklace",
-                    price: 1428572
+                    price: 1428572,
+                    tickets: 1
                 }, {
                     img: "https://t6.rbxcdn.com/47b568333007056a1707dafdd68c4a4c",
                     name: "Blond Spiked Hair",
-                    price: 0
+                    price: 0,
+                    tickets: 1000
                 }];
 
             document.getElementById('crateTitle').innerHTML = removeTags(btn.parentElement.parentElement.crateTitle);
             document.getElementById('cratePrice').innerHTML = getValue(btn.parentElement.parentElement.cratePrice);
+            document.getElementById('winningNumbersCheckbox').checked = false;
             document.getElementById('spinFrame').innerHTML = "";
+            document.getElementById('caseInventory').innerHTML = "";
             for (var j = 0; j < 25; j++) {
                 var shuffledItems = shuffle(items);
                 for (var i = 0; i < items.length; i++) {
                     var item = shuffledItems[i];
-                    var itemCard = htmlToElement(atob(itemTemplate).format(removeTags(item.img), removeTags(item.name), getValue(item.price)));
+                    var itemCard = htmlToElement(atob(itemTemplate).format(removeTags(item.img), removeTags(item.name), getValue(item.price), ''));
                     itemCard.item = item;
                     document.getElementById('spinFrame').appendChild(itemCard);
                 }
             }
 
+            var winningNumbers = 0;
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                var itemCard = htmlToElement(atob(itemTemplate).format(removeTags(item.img), removeTags(item.name), getValue(item.price), '<span class="winning-numbers">' + winningNumbers + ' - ' + (winningNumbers + item.tickets) + '</span>'));
+                winningNumbers += item.tickets;
+                document.getElementById('caseInventory').appendChild(itemCard);
+            }
+            document.getElementById('spinFrame').winningNumbers = winningNumbers;
+            document.getElementById('spinFrame').items = items;
+
+            $(".winning-numbers").hide();
             $('#open-crate').modal('open');
         }
 
@@ -250,6 +295,14 @@
                     1000,
                     giftPreviews[parseInt(Math.random() * giftPreviews.length)]);
             }
+
+            $('#winningNumbersCheckbox').on('change', function () {
+                var c = this.checked;
+                if (c)
+                    $(".winning-numbers").show(100);
+                else
+                    $(".winning-numbers").hide(100);
+            });
         });
 
         $("#signup_pass").on("focusout", function (e) {
@@ -393,14 +446,32 @@
                     </span>
                 </div>
             </div>
-            <div class="spin-open">
-                <div class="divider"></div>
-                <div class="spin-items" id="spinFrame">
+            <div class="row">
+                <div class="spin-open">
+                    <div class="divider"></div>
+                    <div class="spin-items" id="spinFrame">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s6 left">
+                    <h4>Items in the case:</h4>
+                    <p>
+                        <input type="checkbox" class="filled-in" id="winningNumbersCheckbox" />
+                        <label for="winningNumbersCheckbox">Show winning numbers</label>
+                    </p>
+                </div>
+                <div class="col s6 right">
+                    <span class="waves-effect waves-green btn right green">Open This Case</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="case-items" id="caseInventory">
                 </div>
             </div>
         </div>
         <div class="modal-footer">
-            <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
+            <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
         </div>
     </div>
 
