@@ -39,13 +39,77 @@
             display: inline-block;
             margin: 10px 10px 10px 10px;
         }
+
+        .crate-preview {
+            position: absolute;
+            bottom: -50px;
+            right: -30px;
+            width: 75%;
+        }
     </style>
 
     <script>
+        var tagBody = '(?:[^"\'>]|"[^"]*"|\'[^\']*\')*';
+
+        var tagOrComment = new RegExp(
+            '<(?:'
+            // Comment body.
+            + '!--(?:(?:-*[^->])*--+|-?)'
+            // Special "raw text" elements whose content should be elided.
+            + '|script\\b' + tagBody + '>[\\s\\S]*?</script\\s*'
+            + '|style\\b' + tagBody + '>[\\s\\S]*?</style\\s*'
+            // Regular name
+            + '|/?[a-z]'
+            + tagBody
+            + ')>',
+            'gi');
+        function removeTags(html) {
+            var oldHtml;
+            do {
+                oldHtml = html;
+                html = html.replace(tagOrComment, '');
+            } while (html !== oldHtml);
+            return html.replace(/</g, '&lt;');
+        }
+    </script>
+
+    <script>
+        var cardTemplate = "PGRpdiBjbGFzcz0iY2FyZCBpdGVtIj4KCTxkaXYgY2xhc3M9ImNhcmQtaW1hZ2UiPgoJCTxpbWcgc3JjPSJ7MH0iPgoJCTxzcGFuIGNsYXNzPSJjcmF0ZS1wcmV2aWV3Ij48aW1nIHNyYz0iezN9Ij48L3NwYW4+Cgk8L2Rpdj4KCTxkaXYgY2xhc3M9ImNhcmQtY29udGVudCI+CgkJPHNwYW4gY2xhc3M9ImNhcmQtdGl0bGUiPnsxfTwvc3Bhbj4KCQk8ZGl2IGNsYXNzPSJjb2wgczYiPgoJCQk8c3BhbiBjbGFzcz0iZ3JleS10ZXh0Ij4KCQkJCVByaWNlCgkJCTwvc3Bhbj4KCQk8L2Rpdj4KCQk8ZGl2IGNsYXNzPSJjb2wgczYiPgoJCQk8c3BhbiBjbGFzcz0iZ3JlZW4tdGV4dCBhbGlnbi1wcmljZSI+CgkJCQk8aW1nIHN0eWxlPSJtYXgtaGVpZ2h0OiAyMHB4OyIgc3JjPSIvL3JieC5wbGFjZS9pbWcvZnVuZHMucG5nIiAvPgoJCQkJezJ9CgkJCTwvc3Bhbj4KCQk8L2Rpdj4KCTwvZGl2PgoJPGRpdiBjbGFzcz0iY2FyZC1hY3Rpb24iPgoJCTxhIGhyZWY9IiMiIGNsYXNzPSJidG4gd2F2ZXMtZWZmZWN0IHdhdmVzLWxpZ2h0IGdyZWVuIj5PUEVOIENSQVRFPC9hPgoJPC9kaXY+CjwvZGl2Pg==";
+
+        if (!String.prototype.format) {
+            String.prototype.format = function () {
+                var args = arguments;
+                return this.replace(/{(\d+)}/g, function (match, number) {
+                    return typeof args[number] != 'undefined'
+                        ? args[number]
+                        : match
+                        ;
+                });
+            };
+        }
+
+        function displayCard(img, title, price, preview) {
+            document.getElementById("crates").innerHTML += atob(cardTemplate).format(removeTags(img), removeTags(title), price.toLocaleString(), removeTags(preview));
+        }
+
         $(document).ready(function () {
             // the "href" attribute of the modal trigger must specify the modal ID that wants to be triggered
             $('.modal').modal();
             $('ul.tabs').tabs();
+
+            var giftImages = ['https://t4.rbxcdn.com/e77ebd99144a1d6c44519b85e003b75a', 'https://t4.rbxcdn.com/a392643ab4cf3b55393200f85b6d0a23',
+                'https://t1.rbxcdn.com/de7f2fe32e223a74c70e7d1072d7114c', 'https://t0.rbxcdn.com/55d1aed888beb2d2d0d3a77549b902d4'];
+            var giftTitles = ['ez dominus', 'kazok is the best', '50/50 case', 'BEST CASE EVER', 'gooms original', '99% profit case!', 'EZ profit'];
+            var giftPreviews = ['https://t0.rbxcdn.com/506c5b943e8b5ca77d19a957aae1278a', 'https://t2.rbxcdn.com/c9b13158b51ab0b40bc8d9d5adb3e9a4', 'https://t2.rbxcdn.com/82cb24afec92ee77269760a7c0e522a2',
+                'https://t7.rbxcdn.com/3bd95ae760f426f1502f2de4880acf5b', 'https://t4.rbxcdn.com/d8df9a201fe4530dc87a103019bbaee5', 'https://t6.rbxcdn.com/76b1655e1e082d8b2bd681218eba89af'];
+
+            for (var i = 0; i < 4 * 3; i++) {
+                displayCard(
+                    giftImages[parseInt(Math.random() * giftImages.length)],
+                    giftTitles[parseInt(Math.random() * giftTitles.length)],
+                    1000,
+                    giftPreviews[parseInt(Math.random() * giftPreviews.length)]);
+            }
         });
 
         $("#signup_pass").on("focusout", function (e) {
@@ -176,341 +240,30 @@
     <div class="section no-pad-bot" id="index-banner">
         <div class="container">
             <br><br>
-            <h1 class="header center orange-text">Starter Template</h1>
+            <h1 class="header center orange-text">Welcome to <a href="http://rblx.fun">RBLX.Fun</a></h1>
             <div class="row center">
-                <h5 class="header col s12 light">A modern responsive front-end framework based on Material Design</h5>
+                <h5 class="header col s12 light"><a href="http://rblx.fun">RBLX.Fun</a> is a crate opening site where you can play and win items. Sign up to begin opening crates and win the items of your dreams</h5>
             </div>
             <div class="row center">
-                <a href="http://materializecss.com/getting-started.html" id="download-button" class="btn-large waves-effect waves-light orange">Get Started</a>
+                <a href="#signin" id="discord-button" class="btn-large waves-effect waves-light orange modal-trigger" onclick="$('[href=\'#sign-in\']').click()">SIGN IN</a>
+                <a href="https://discord.gg/UjVkpkF" id="discord-button" class="btn-large waves-effect waves-light purple"><i class="left material-icons">chat</i>DISCORD</a>
+                <a href="#signin" id="discord-button" class="btn-large waves-effect waves-light orange modal-trigger" onclick="$('[href=\'#sign-up\']').click()">SIGN UP</a>
             </div>
             <br><br>
-            <div class="row center">
-                <div class="card item">
-                    <div class="card-image">
-                        <img src="https://t4.rbxcdn.com/a392643ab4cf3b55393200f85b6d0a23">
-                    </div>
-                    <div class="card-content">
-                        <span class="card-title">ez dominus</span>
-                        <div class="col s6">
-                            <span class="grey-text">
-                                Price
-                            </span>
-                        </div>
-                        <div class="col s6">
-                            <span class="green-text align-price">
-                                <img style="max-height: 20px;" src="//rbx.place/img/funds.png" />
-                                1,000
-                            </span>
-                        </div>
-                    </div>
-                    <div class="card-action">
-                        <a href="#" class="btn waves-effect waves-light green">OPEN CRATE</a>
-                    </div>
-                </div>
-                <div class="card item">
-                    <div class="card-image">
-                        <img src="https://t4.rbxcdn.com/a392643ab4cf3b55393200f85b6d0a23">
-                    </div>
-                    <div class="card-content">
-                        <span class="card-title">ez dominus</span>
-                        <div class="col s6">
-                            <span class="grey-text">
-                                Price
-                            </span>
-                        </div>
-                        <div class="col s6">
-                            <span class="green-text align-price">
-                                <img style="max-height: 20px;" src="//rbx.place/img/funds.png" />
-                                1,000
-                            </span>
-                        </div>
-                    </div>
-                    <div class="card-action">
-                        <a href="#" class="btn waves-effect waves-light green">OPEN CRATE</a>
-                    </div>
-                </div>
-                <div class="card item">
-                    <div class="card-image">
-                        <img src="https://t4.rbxcdn.com/a392643ab4cf3b55393200f85b6d0a23">
-                    </div>
-                    <div class="card-content">
-                        <span class="card-title">ez dominus</span>
-                        <div class="col s6">
-                            <span class="grey-text">
-                                Price
-                            </span>
-                        </div>
-                        <div class="col s6">
-                            <span class="green-text align-price">
-                                <img style="max-height: 20px;" src="//rbx.place/img/funds.png" />
-                                1,000
-                            </span>
-                        </div>
-                    </div>
-                    <div class="card-action">
-                        <a href="#" class="btn waves-effect waves-light green">OPEN CRATE</a>
-                    </div>
-                </div>
-                <div class="card item">
-                    <div class="card-image">
-                        <img src="https://t4.rbxcdn.com/a392643ab4cf3b55393200f85b6d0a23">
-                    </div>
-                    <div class="card-content">
-                        <span class="card-title">ez dominus</span>
-                        <div class="col s6">
-                            <span class="grey-text">
-                                Price
-                            </span>
-                        </div>
-                        <div class="col s6">
-                            <span class="green-text align-price">
-                                <img style="max-height: 20px;" src="//rbx.place/img/funds.png" />
-                                1,000
-                            </span>
-                        </div>
-                    </div>
-                    <div class="card-action">
-                        <a href="#" class="btn waves-effect waves-light green">OPEN CRATE</a>
-                    </div>
-                </div>
-                <div class="card item">
-                    <div class="card-image">
-                        <img src="https://t4.rbxcdn.com/a392643ab4cf3b55393200f85b6d0a23">
-                    </div>
-                    <div class="card-content">
-                        <span class="card-title">ez dominus</span>
-                        <div class="col s6">
-                            <span class="grey-text">
-                                Price
-                            </span>
-                        </div>
-                        <div class="col s6">
-                            <span class="green-text align-price">
-                                <img style="max-height: 20px;" src="//rbx.place/img/funds.png" />
-                                1,000
-                            </span>
-                        </div>
-                    </div>
-                    <div class="card-action">
-                        <a href="#" class="btn waves-effect waves-light green">OPEN CRATE</a>
-                    </div>
-                </div>
-                <div class="card item">
-                    <div class="card-image">
-                        <img src="https://t4.rbxcdn.com/a392643ab4cf3b55393200f85b6d0a23">
-                    </div>
-                    <div class="card-content">
-                        <span class="card-title">ez dominus</span>
-                        <div class="col s6">
-                            <span class="grey-text">
-                                Price
-                            </span>
-                        </div>
-                        <div class="col s6">
-                            <span class="green-text align-price">
-                                <img style="max-height: 20px;" src="//rbx.place/img/funds.png" />
-                                1,000
-                            </span>
-                        </div>
-                    </div>
-                    <div class="card-action">
-                        <a href="#" class="btn waves-effect waves-light green">OPEN CRATE</a>
-                    </div>
-                </div>
-                <div class="card item">
-                    <div class="card-image">
-                        <img src="https://t4.rbxcdn.com/a392643ab4cf3b55393200f85b6d0a23">
-                    </div>
-                    <div class="card-content">
-                        <span class="card-title">ez dominus</span>
-                        <div class="col s6">
-                            <span class="grey-text">
-                                Price
-                            </span>
-                        </div>
-                        <div class="col s6">
-                            <span class="green-text align-price">
-                                <img style="max-height: 20px;" src="//rbx.place/img/funds.png" />
-                                1,000
-                            </span>
-                        </div>
-                    </div>
-                    <div class="card-action">
-                        <a href="#" class="btn waves-effect waves-light green">OPEN CRATE</a>
-                    </div>
-                </div>
-                <div class="card item">
-                    <div class="card-image">
-                        <img src="https://t4.rbxcdn.com/a392643ab4cf3b55393200f85b6d0a23">
-                    </div>
-                    <div class="card-content">
-                        <span class="card-title">ez dominus</span>
-                        <div class="col s6">
-                            <span class="grey-text">
-                                Price
-                            </span>
-                        </div>
-                        <div class="col s6">
-                            <span class="green-text align-price">
-                                <img style="max-height: 20px;" src="//rbx.place/img/funds.png" />
-                                1,000
-                            </span>
-                        </div>
-                    </div>
-                    <div class="card-action">
-                        <a href="#" class="btn waves-effect waves-light green">OPEN CRATE</a>
-                    </div>
-                </div>
-                <div class="card item">
-                    <div class="card-image">
-                        <img src="https://t4.rbxcdn.com/a392643ab4cf3b55393200f85b6d0a23">
-                    </div>
-                    <div class="card-content">
-                        <span class="card-title">ez dominus</span>
-                        <div class="col s6">
-                            <span class="grey-text">
-                                Price
-                            </span>
-                        </div>
-                        <div class="col s6">
-                            <span class="green-text align-price">
-                                <img style="max-height: 20px;" src="//rbx.place/img/funds.png" />
-                                1,000
-                            </span>
-                        </div>
-                    </div>
-                    <div class="card-action">
-                        <a href="#" class="btn waves-effect waves-light green">OPEN CRATE</a>
-                    </div>
-                </div>
-                <div class="card item">
-                    <div class="card-image">
-                        <img src="https://t4.rbxcdn.com/a392643ab4cf3b55393200f85b6d0a23">
-                    </div>
-                    <div class="card-content">
-                        <span class="card-title">ez dominus</span>
-                        <div class="col s6">
-                            <span class="grey-text">
-                                Price
-                            </span>
-                        </div>
-                        <div class="col s6">
-                            <span class="green-text align-price">
-                                <img style="max-height: 20px;" src="//rbx.place/img/funds.png" />
-                                1,000
-                            </span>
-                        </div>
-                    </div>
-                    <div class="card-action">
-                        <a href="#" class="btn waves-effect waves-light green">OPEN CRATE</a>
-                    </div>
-                </div>
-                <div class="card item">
-                    <div class="card-image">
-                        <img src="https://t4.rbxcdn.com/a392643ab4cf3b55393200f85b6d0a23">
-                    </div>
-                    <div class="card-content">
-                        <span class="card-title">ez dominus</span>
-                        <div class="col s6">
-                            <span class="grey-text">
-                                Price
-                            </span>
-                        </div>
-                        <div class="col s6">
-                            <span class="green-text align-price">
-                                <img style="max-height: 20px;" src="//rbx.place/img/funds.png" />
-                                1,000
-                            </span>
-                        </div>
-                    </div>
-                    <div class="card-action">
-                        <a href="#" class="btn waves-effect waves-light green">OPEN CRATE</a>
-                    </div>
-                </div>
-                <div class="card item">
-                    <div class="card-image">
-                        <img src="https://t4.rbxcdn.com/a392643ab4cf3b55393200f85b6d0a23">
-                    </div>
-                    <div class="card-content">
-                        <span class="card-title">ez dominus</span>
-                        <div class="col s6">
-                            <span class="grey-text">
-                                Price
-                            </span>
-                        </div>
-                        <div class="col s6">
-                            <span class="green-text align-price">
-                                <img style="max-height: 20px;" src="//rbx.place/img/funds.png" />
-                                1,000
-                            </span>
-                        </div>
-                    </div>
-                    <div class="card-action">
-                        <a href="#" class="btn waves-effect waves-light green">OPEN CRATE</a>
-                    </div>
-                </div>
+            <div class="row center" id="crates">
             </div>
         </div>
-    </div>
-
-
-    <div class="container">
-        <div class="section">
-
-            <!--   Icon Section   -->
-            <div class="row">
-                <div class="col s12 m4">
-                    <div class="icon-block">
-                        <h2 class="center light-blue-text"><i class="material-icons">flash_on</i></h2>
-                        <h5 class="center">Speeds up development</h5>
-
-                        <p class="light">We did most of the heavy lifting for you to provide a default stylings that incorporate our custom components. Additionally, we refined animations and transitions to provide a smoother experience for developers.</p>
-                    </div>
-                </div>
-
-                <div class="col s12 m4">
-                    <div class="icon-block">
-                        <h2 class="center light-blue-text"><i class="material-icons">group</i></h2>
-                        <h5 class="center">User Experience Focused</h5>
-
-                        <p class="light">By utilizing elements and principles of Material Design, we were able to create a framework that incorporates components and animations that provide more feedback to users. Additionally, a single underlying responsive system across all platforms allow for a more unified user experience.</p>
-                    </div>
-                </div>
-
-                <div class="col s12 m4">
-                    <div class="icon-block">
-                        <h2 class="center light-blue-text"><i class="material-icons">settings</i></h2>
-                        <h5 class="center">Easy to work with</h5>
-
-                        <p class="light">We have provided detailed documentation as well as specific code examples to help new users get started. We are also always open to feedback and can answer any questions a user may have about Materialize.</p>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-        <br><br>
     </div>
 
     <footer class="page-footer orange">
         <div class="container">
             <div class="row">
                 <div class="col l6 s12">
-                    <h5 class="white-text">Company Bio</h5>
-                    <p class="grey-text text-lighten-4">We are a team of college students working on this project like it's our full time job. Any amount would help support and continue development on this project and is greatly appreciated.</p>
-
-
+                    <h5 class="white-text">About</h5>
+                    <p class="grey-text text-lighten-4">We are a crate opening site where you can play and win items. Sign up to begin opening crates and win the items of your dreams</p>
                 </div>
-                <div class="col l3 s12">
-                    <h5 class="white-text">Settings</h5>
-                    <ul>
-                        <li><a class="white-text" href="#!">Link 1</a></li>
-                        <li><a class="white-text" href="#!">Link 2</a></li>
-                        <li><a class="white-text" href="#!">Link 3</a></li>
-                        <li><a class="white-text" href="#!">Link 4</a></li>
-                    </ul>
-                </div>
-                <div class="col l3 s12">
-                    <h5 class="white-text">Connect</h5>
+                <div class="col l6 s12">
+                    <h5 class="white-text">Links</h5>
                     <ul>
                         <li><a class="white-text" href="#!">Link 1</a></li>
                         <li><a class="white-text" href="#!">Link 2</a></li>
@@ -522,7 +275,7 @@
         </div>
         <div class="footer-copyright">
             <div class="container">
-                Made by <a class="orange-text text-lighten-3" href="http://materializecss.com">Materialize</a>
+                Made by doctor
             </div>
         </div>
     </footer>
