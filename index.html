@@ -468,9 +468,7 @@
                 price += Math.ceil((val == "Free" ? 0 : parseFloat(val)) * (parseFloat($(n).val(), 10) / 100.0));
             });
 
-            document.getElementById('oddsSum').innerHTML = sum;
-            document.getElementById('calculatedPrice').innerHTML = getValue(price);
-            document.getElementById('cratePreviewPrice').innerHTML = getValue(price);
+            price = Math.ceil(price * 1.02);
 
             var crate = {
                 img: document.getElementById('cratePreviewIcon').src,
@@ -484,7 +482,7 @@
             for (var i = 0; i < crateItems.length; i++) {
                 crate.items.push({
                     id: crateItems[i].id,
-                    tickets: parseInt(parseFloat($(crateItems[i]).find('#odds').val()) / 0.001)
+                    tickets: Math.round(parseFloat($(crateItems[i]).find('#odds').val()) / 0.001)
                     });
             }
 
@@ -496,7 +494,7 @@
                 toastr.error("The odds for any item cannot be less than 0.001!");
             } else {
                 console.log("New Crate!\nJSON: " + JSON.stringify(crate) + "\n\nBase64: " + btoa(JSON.stringify(crate)));
-                toastr.succes("Crate logged to console");
+                toastr.success("Crate logged to console");
             }
         }
 
@@ -509,6 +507,8 @@
                 var val = n.parentElement.parentElement.parentElement.children[1].children[1].innerText.replace(/,/g, '');
                 price += Math.ceil((val == "Free" ? 0 : parseFloat(val)) * (parseFloat($(n).val(), 10) / 100.0));
             });
+
+            price = Math.ceil(price * 1.02);
 
             document.getElementById('oddsSum').innerHTML = sum;
             document.getElementById('calculatedPrice').innerHTML = getValue(price);
@@ -596,7 +596,8 @@
             $('ul.tabs').tabs();
 
             var crates = [
-                'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9NDE0NTI2OTgiLCJ0aXRsZSI6InRoZSBmaXJzdCBjcmF0ZSIsInByaWNlIjoxMDE4LCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTQ1MTIyMTMyOSIsIml0ZW1zIjpbeyJpZCI6IjM3NjUyNDQ4NyIsInRpY2tldHMiOjIwMDAwfSx7ImlkIjoiMzc2NTI2ODg4IiwidGlja2V0cyI6MjAwMDB9LHsiaWQiOiI0NTEyMjEzMjkiLCJ0aWNrZXRzIjo0MDAwMH0seyJpZCI6IjYzNjkwMDA4IiwidGlja2V0cyI6MTk5ODl9LHsiaWQiOiI0ODU0NTgwNiIsInRpY2tldHMiOjEwfV19'
+                'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9NDE0NTI2OTgiLCJ0aXRsZSI6InRoZSBmaXJzdCBjcmF0ZSIsInByaWNlIjoxMDE4LCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTQ1MTIyMTMyOSIsIml0ZW1zIjpbeyJpZCI6IjM3NjUyNDQ4NyIsInRpY2tldHMiOjIwMDAwfSx7ImlkIjoiMzc2NTI2ODg4IiwidGlja2V0cyI6MjAwMDB9LHsiaWQiOiI0NTEyMjEzMjkiLCJ0aWNrZXRzIjo0MDAwMH0seyJpZCI6IjYzNjkwMDA4IiwidGlja2V0cyI6MTk5ODl9LHsiaWQiOiI0ODU0NTgwNiIsInRpY2tldHMiOjEwfV19',
+                'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTM4MjE5ODIzIiwidGl0bGUiOiJleiBwcm9maXQiLCJwcmljZSI6MTQ0LCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTM3NjUyNjY3MyIsIml0ZW1zIjpbeyJpZCI6IjM3NjUyNjY3MyIsInRpY2tldHMiOjMzMDAwfSx7ImlkIjoiMjE1NzE5NTk4IiwidGlja2V0cyI6MTIwMDB9LHsiaWQiOiIyMDY0MjAwOCIsInRpY2tldHMiOjE1MDAwfSx7ImlkIjoiMTA2NjkwMDQ1IiwidGlja2V0cyI6MTAwMDB9LHsiaWQiOiIzNzY1NDg3MzgiLCJ0aWNrZXRzIjozMDAwMH1dfQ=='
             ];
 
             for (var i = 0; i < crates.length; i++) {
