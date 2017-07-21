@@ -4,6 +4,8 @@
     <meta charset="utf-8" />
     <title>RBLX.Fun</title>
 
+    <link rel="shortcut icon" type="image/x-icon" href="https://raw.githubusercontent.com/Cryption/rblx.fun/master/favicon.ico">
+
     <!--Import Google Icon Font-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!--Import materialize.css-->
@@ -15,6 +17,9 @@
     <!--Import jQuery before materialize.js-->
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.0/js/materialize.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
     <style>
         .modal {
@@ -168,13 +173,17 @@
         var cardTemplate = "PGRpdiBjbGFzcz0iY2FyZCBpdGVtIj4KCTxkaXYgY2xhc3M9ImNhcmQtaW1hZ2UiPgoJCTxpbWcgc3JjPSJ7MH0iPgoJCTxzcGFuIGNsYXNzPSJjcmF0ZS1wcmV2aWV3Ij48aW1nIHNyYz0iezN9Ij48L3NwYW4+Cgk8L2Rpdj4KCTxkaXYgY2xhc3M9ImNhcmQtY29udGVudCI+CgkJPHNwYW4gY2xhc3M9ImNhcmQtdGl0bGUiPnsxfTwvc3Bhbj4KCQk8ZGl2IGNsYXNzPSJjb2wgczYiPgoJCQk8c3BhbiBjbGFzcz0iZ3JleS10ZXh0Ij4KCQkJCVByaWNlCgkJCTwvc3Bhbj4KCQk8L2Rpdj4KCQk8ZGl2IGNsYXNzPSJjb2wgczYiPgoJCQk8c3BhbiBjbGFzcz0iZ3JlZW4tdGV4dCBhbGlnbi1wcmljZSI+CgkJCQk8aW1nIHN0eWxlPSJtYXgtaGVpZ2h0OiAyMHB4OyIgc3JjPSIvL3JieC5wbGFjZS9pbWcvZnVuZHMucG5nIiAvPgoJCQkJezJ9CgkJCTwvc3Bhbj4KCQk8L2Rpdj4KCTwvZGl2PgoJPGRpdiBjbGFzcz0iY2FyZC1hY3Rpb24iPgoJCTxzcGFuIGNsYXNzPSJidG4gd2F2ZXMtZWZmZWN0IHdhdmVzLWxpZ2h0IGdyZWVuIiBvbmNsaWNrPSJkaXNwbGF5Q3JhdGVPcGVuZXIodGhpcyk7Ij5PUEVOIENSQVRFPC9zcGFuPgoJPC9kaXY+CjwvZGl2Pg==";
         var itemTemplate = "PGRpdiBjbGFzcz0iY2FyZCBjcmF0ZS1pdGVtIj4KCTxkaXYgY2xhc3M9ImNhcmQtaW1hZ2UiIHN0eWxlPSJib3JkZXItYm90dG9tOiAxcHggc29saWQgcmdiYSgwLCAwLCAwLCAwLjEpIj4KCQk8aW1nIHNyYz0iezB9Ij4KCQl7NH0KCTwvZGl2PgoJPGRpdiBjbGFzcz0iY2FyZC1jb250ZW50IiBzdHlsZT0icGFkZGluZzogNHB4IDRweCA0cHggNHB4Ij4KCQk8cCBjbGFzcz0iaXRlbS1uYW1lIj57MX08L3A+CgkJPHAgY2xhc3M9ImdyZXktdGV4dCI+ezN9PC9wPgoJCTxkaXYgY2xhc3M9ImNvbCBzMTIiPgoJCQk8c3BhbiBjbGFzcz0iZ3JlZW4tdGV4dCBhbGlnbi1wcmljZSI+CgkJCQk8aW1nIHN0eWxlPSJtYXgtaGVpZ2h0OiAyMHB4OyIgc3JjPSIvL3JieC5wbGFjZS9pbWcvZnVuZHMucG5nIiAvPgoJCQkJezJ9CgkJCTwvc3Bhbj4KCQk8L2Rpdj4KCTwvZGl2Pgo8L2Rpdj4=";
         var inveTemplate = "PGRpdiBjbGFzcz0iY2FyZCBob3Jpem9udGFsIHVzZXItaXRlbSI+Cgk8ZGl2IGNsYXNzPSJjYXJkLWltYWdlIj4KCQk8aW1nIHNyYz0iezB9IiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgc3R5bGU9IndpZHRoOiAyMDBweCI+CgkJezR9Cgk8L2Rpdj4KCTxkaXYgY2xhc3M9ImNhcmQtc3RhY2tlZCI+CgkJPGRpdiBjbGFzcz0iY2FyZC1jb250ZW50IiBzdHlsZT0icGFkZGluZzogNHB4IDRweCA0cHggNHB4Ij4KCQkJPGg0PnsxfTwvaDQ+CgkJCTxwPjxzcGFuIGNsYXNzPSJncmV5LXRleHQiPlByaWNlOiA8L3NwYW4+CgkJCQk8c3BhbiBjbGFzcz0iZ3JlZW4tdGV4dCBhbGlnbi1wcmljZSI+CgkJCQkJPGltZyBzdHlsZT0ibWF4LWhlaWdodDogMjBweDsiIHNyYz0iLy9yYngucGxhY2UvaW1nL2Z1bmRzLnBuZyIgLz4KCQkJCQl7Mn0KCQkJCTwvc3Bhbj4KCQkJPC9wPgoJCTwvZGl2PgoJCTxkaXYgY2xhc3M9ImNhcmQtYWN0aW9uIj4KCQkJPHNwYW4gY2xhc3M9ImJ0biB3YXZlcy1lZmZlY3Qgd2F2ZXMtbGlnaHQgb3JhbmdlIiBvbmNsaWNrPSIiIGRpc2FibGVkPSJkaXNhYmxlZCI+V0lUSERSQVc8L3NwYW4+CgkJCTxzcGFuIGNsYXNzPSJidG4gd2F2ZXMtZWZmZWN0IHdhdmVzLWxpZ2h0IGdyZWVuIiBvbmNsaWNrPSJjb252ZXJ0VG9Sb2J1eCh0aGlzKTsiPkNPTlZFUlQgVE8gUiQ8L3NwYW4+CgkJPC9kaXY+Cgk8L2Rpdj4KPC9kaXY+";
+        var creaTemplate = "PGRpdiBjbGFzcz0iY2FyZCBob3Jpem9udGFsIHVzZXItaXRlbSIgc3R5bGU9ImhlaWdodDogMjUwcHgiPgoJPGRpdiBjbGFzcz0iY2FyZC1pbWFnZSI+CgkJPGltZyBzcmM9InswfSIgd2lkdGg9IjI1MCIgaGVpZ2h0PSIyNTAiIHN0eWxlPSJ3aWR0aDogMjUwcHgiPgoJCXs0fQoJPC9kaXY+Cgk8ZGl2IGNsYXNzPSJjYXJkLXN0YWNrZWQiPgoJCTxkaXYgY2xhc3M9ImNhcmQtY29udGVudCIgc3R5bGU9InBhZGRpbmc6IDRweCA0cHggNHB4IDRweCI+CgkJCTxoND57MX08L2g0PgoJCQk8cD48c3BhbiBjbGFzcz0iZ3JleS10ZXh0Ij5QcmljZTogPC9zcGFuPgoJCQkJPHNwYW4gY2xhc3M9ImdyZWVuLXRleHQgYWxpZ24tcHJpY2UiPgoJCQkJCTxpbWcgc3R5bGU9Im1heC1oZWlnaHQ6IDIwcHg7IiBzcmM9Ii8vcmJ4LnBsYWNlL2ltZy9mdW5kcy5wbmciIC8+CgkJCQkJezJ9CgkJCQk8L3NwYW4+CgkJCTwvcD4KCQkJPGRpdiBjbGFzcz0icm93IG1vZGFsLWZvcm0tcm93Ij4KCQkJCTxkaXYgY2xhc3M9ImlucHV0LWZpZWxkIGNvbCBzMTIiPgoJCQkJCTxpbnB1dCBpZD0ib2RkcyIgdHlwZT0ibnVtYmVyIiBtaW49IjAiIG1heD0iMTAwIiBzdGVwPSIwLjAwMSIgb25jaGFuZ2U9InNldEl0ZW1PZGRzKHRoaXMpOyIgb25rZXl1cD0ic2V0SXRlbU9kZHModGhpcyk7IiB2YWx1ZT0wIGNsYXNzPSJ2YWxpZGF0ZSB2YWxpZCI+CgkJCQkJPGxhYmVsIGZvcj0ib2RkcyIgY2xhc3M9ImFjdGl2ZSI+T2RkczwvbGFiZWw+CgkJCQk8L2Rpdj4KCQkJPC9kaXY+CgkJPC9kaXY+CgkJPGRpdiBjbGFzcz0iY2FyZC1hY3Rpb24iPgoJCQk8c3BhbiBjbGFzcz0iYnRuIHdhdmVzLWVmZmVjdCB3YXZlcy1saWdodCByZWQiIG9uY2xpY2s9InJlbW92ZUNyYXRlSXRlbSh0aGlzKTsiPlJFTU9WRTwvc3Bhbj4KCQkJPHNwYW4gY2xhc3M9ImJ0biB3YXZlcy1lZmZlY3Qgd2F2ZXMtbGlnaHQgZ3JlZW4iIG9uY2xpY2s9InNldFByaW1hcnlJdGVtKHRoaXMpOyI+TUFLRSBQUklNQVJZPC9zcGFuPgoJCTwvZGl2PgoJPC9kaXY+CjwvZGl2Pg==";
 
         var itemEndPoint = 'https://api.roblox.com/Marketplace/ProductInfo?assetId={0}';
         var thumbnailEndPoint = 'https://www.roblox.com/Thumbs/Asset.ashx?width=420&height=420&assetId={0}';
         var catalogEndPoint = 'https://search.roblox.com/catalog/json?CreatorID={0}&Keyword={1}&ResultsPerPage=1';
+        var searchEndPoint = 'https://search.roblox.com/catalog/json?Category=0&Keyword={0}&ResultsPerPage=12&IncludeNotForSale=false&SortType=MostFavorited';
+        var giftsEndPoint = 'https://search.roblox.com/catalog/items?Category=11&Direction={1}&IncludeNotForSale=true&Keyword=opened+gift&Subcategory=9&ResultsPerPage=12&PageNumber={0}&PageHash={2}';
+        var pageHash = '';
 
         var invalidItem = {
-            img: '',
+            img: 'https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png',
             name: 'Unknown Item',
             price: 0,
             overlay: 0
@@ -220,12 +229,13 @@
             return price <= 0 ? "Free" : price.toLocaleString();
         }
 
-        function displayCard(img, title, price, preview) {
+        function displayCard(items, img, title, price, preview) {
             var crates = document.getElementById('crates');
             var card = htmlToElement(atob(cardTemplate).format(removeTags(img), removeTags(title), getValue(price), removeTags(preview)));
 
             card.crateTitle = title;
             card.cratePrice = price;
+            card.crateItems = items;
 
             crates.appendChild(card);
         }
@@ -375,46 +385,7 @@
         }
 
         function displayCrateOpener(btn) {
-            var items = [{
-                    id: '376524487',
-                    tickets: 1000
-                }, {
-                    id: '63690008',
-                    tickets: 1000
-                }, {
-                    id: '62743701',
-                    tickets: 85
-                }, {
-                    id: '1029025',
-                    tickets: 1
-                }, {
-                    id: '148791559',
-                    tickets: 1
-                }, {
-                    id: '22850569',
-                    tickets: 1
-                }, {
-                    id: '21070012',
-                    tickets: 1
-                }, {
-                    id: '31101391',
-                    tickets: 1
-                }, {
-                    id: '48545806',
-                    tickets: 1
-                }, {
-                    id: '1031429',
-                    tickets: 1
-                }, {
-                    id: '64082730',
-                    tickets: 1
-                }, {
-                    id: '51352983',
-                    tickets: 1
-                }, {
-                    id: '63043890',
-                    tickets: 1
-                }];
+            var items = btn.parentElement.parentElement.crateItems;
 
             if (typeof (currentSpin) != 'undefined')
                 clearInterval(currentSpin);
@@ -428,7 +399,7 @@
                 var shuffledItems = shuffle(items.slice(0));
                 for (var i = 0; i < items.length; i++) {
                     var item = shuffledItems[i];
-                    var itemCard = htmlToElement(atob(itemTemplate).format('loading.png', 'Loading', 'Loading...', '', ''));
+                    var itemCard = htmlToElement(atob(itemTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', 'Loading...', '', ''));
                     (function (itemCard) {
                         getItem(item.id, function (listing) {
                             itemCard.innerHTML = htmlToElement(atob(itemTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(listing.price), '', overlays[listing.overlay])).innerHTML;
@@ -442,7 +413,7 @@
             var winningNumbers = 0;
             for (var i = 0; i < items.length; i++) {
                 var item = items[i];
-                var itemCard = htmlToElement(atob(itemTemplate).format('loading.png', 'Loading', 'Loading...', '', ''));
+                var itemCard = htmlToElement(atob(itemTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', 'Loading...', '', ''));
                 (function (itemCard, winningNumbers, item) {
                     getItem(item.id, function (listing) {
                         itemCard.innerHTML = htmlToElement(atob(itemTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(listing.price), '<span class="winning-numbers" ' + (document.getElementById('winningNumbersCheckbox').checked ? '' : 'style="display: none"') + '>' + winningNumbers + ' - ' + (winningNumbers + item.tickets) + '</span>', overlays[listing.overlay])).innerHTML;
@@ -459,7 +430,7 @@
         }
 
         function addInventoryItem(id) {
-            var itemCard = htmlToElement(atob(inveTemplate).format('loading.png', 'Loading', 'Loading...', '', ''));
+            var itemCard = htmlToElement(atob(inveTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', 'Loading...', '', ''));
             (function (itemCard) {
                 getItem(id, function (listing) {
                     itemCard.innerHTML = htmlToElement(atob(inveTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(listing.price), '', overlays[listing.overlay])).innerHTML;
@@ -484,23 +455,153 @@
             $('#inventory').modal('open');
         }
 
+        function createCrate() {
+            var sum = 0;
+            var price = 0;
+
+            var smallestOdd = 100;
+
+            $("[id='odds']").each(function (i, n) {
+                sum += parseFloat($(n).val(), 10);
+                smallestOdd = Math.min(smallestOdd, parseFloat($(n).val(), 10));
+                var val = n.parentElement.parentElement.parentElement.children[1].children[1].innerText.replace(/,/g, '');
+                price += Math.ceil((val == "Free" ? 0 : parseFloat(val)) * (parseFloat($(n).val(), 10) / 100.0));
+            });
+
+            document.getElementById('oddsSum').innerHTML = sum;
+            document.getElementById('calculatedPrice').innerHTML = getValue(price);
+            document.getElementById('cratePreviewPrice').innerHTML = getValue(price);
+
+            var crate = {
+                img: document.getElementById('cratePreviewIcon').src,
+                title: document.getElementById('caseName').value,
+                price: price,
+                preview: document.getElementById('cratePreviewPreview').src,
+                items: []
+            };
+
+            var crateItems = document.getElementById('creatorDiv').children;
+            for (var i = 0; i < crateItems.length; i++) {
+                crate.items.push({
+                    id: crateItems[i].id,
+                    tickets: parseInt(parseFloat($(crateItems[i]).find('#odds').val()) / 0.001)
+                    });
+            }
+
+            if (document.getElementById('caseName').value == "") {
+                toastr.error("You must enter a crate name!");
+            } else if (sum != 100) {
+                toastr.error("The total odds must be 100%!");
+            } else if (smallestOdd < 0.001) {
+                toastr.error("The odds for any item cannot be less than 0.001!");
+            } else {
+                console.log("New Crate!\nJSON: " + JSON.stringify(crate) + "\n\nBase64: " + btoa(JSON.stringify(crate)));
+                toastr.succes("Crate logged to console");
+            }
+        }
+
+        function setItemOdds(btn) {
+            var sum = 0;
+            var price = 0;
+
+            $("[id='odds']").each(function (i, n) {
+                sum += parseFloat($(n).val(), 10);
+                var val = n.parentElement.parentElement.parentElement.children[1].children[1].innerText.replace(/,/g, '');
+                price += Math.ceil((val == "Free" ? 0 : parseFloat(val)) * (parseFloat($(n).val(), 10) / 100.0));
+            });
+
+            document.getElementById('oddsSum').innerHTML = sum;
+            document.getElementById('calculatedPrice').innerHTML = getValue(price);
+            document.getElementById('cratePreviewPrice').innerHTML = getValue(price);
+        }
+
+        function setPrimaryItem(btn) {
+            document.getElementById('cratePreviewPreview').src = btn.parentElement.parentElement.parentElement.children[0].children[0].src;
+        }
+
+        function removeCrateItem(btn) {
+            var card = btn.parentElement.parentElement.parentElement;
+            card.parentElement.removeChild(card);
+
+            setItemOdds(btn);
+        }
+
+        function setGiftsPage(page, direction) {
+            if (page < 0) {
+                page = 0;
+                return;
+            }
+
+            document.getElementById('pageNumber').innerHTML = (page + 1);
+            document.getElementById('gifts').innerHTML = "";
+            
+            document.getElementById('nextPage').setAttribute('disabled', 'disabled');
+            document.getElementById('prevPage').setAttribute('disabled', 'disabled');
+
+            setTimeout(function () {
+                $.ajax({
+                    url: 'https://crossorigin.me/' + giftsEndPoint.format(page, direction, pageHash),
+                    success: function (data) {
+                        pageHash = data.PageHash;
+
+                        document.getElementById('nextPage').removeAttribute('disabled');
+                        document.getElementById('prevPage').removeAttribute('disabled');
+                        
+                        if (parseInt(document.getElementById('pageNumber').innerHTML) == (page + 1)) {
+                            for (var i = 0; i < data.Items.length; i++) {
+                                var itemCard = htmlToElement(atob(itemTemplate).format(thumbnailEndPoint.format(data.Items[i].AssetId), '', '', '', ''));
+                                var addButton = document.createElement('button');
+                                addButton.setAttribute('class', 'btn waves-effect waves-light');
+                                addButton.setAttribute('style', 'width: 100%');
+                                addButton.innerHTML = "Set Icon";
+                                (function (id) {
+                                    addButton.onclick = function () {
+                                        document.getElementById('cratePreviewIcon').src = thumbnailEndPoint.format(id);
+                                    };
+                                })(data.Items[i].AssetId);
+                                itemCard.children[1].appendChild(addButton);
+
+                                var content = itemCard.children[1];
+                                content.removeChild(content.children[2]);
+
+                                document.getElementById('gifts').appendChild(itemCard);
+                            }
+                        }
+                    }
+                });
+            }, 1000);
+        }
+        
         $(document).ready(function () {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": "5000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            }
+
             // the "href" attribute of the modal trigger must specify the modal ID that wants to be triggered
             $('.modal').modal();
             $('ul.tabs').tabs();
 
-            var giftImages = ['https://t4.rbxcdn.com/e77ebd99144a1d6c44519b85e003b75a', 'https://t4.rbxcdn.com/a392643ab4cf3b55393200f85b6d0a23',
-                'https://t1.rbxcdn.com/de7f2fe32e223a74c70e7d1072d7114c', 'https://t0.rbxcdn.com/55d1aed888beb2d2d0d3a77549b902d4'];
-            var giftTitles = ['ez dominus', 'kazok is the best', '50/50 case', 'BEST CASE EVER', 'gooms original', '99% profit case!', 'EZ profit', 'goombas waffle stomp'];
-            var giftPreviews = ['https://t0.rbxcdn.com/506c5b943e8b5ca77d19a957aae1278a', 'https://t2.rbxcdn.com/c9b13158b51ab0b40bc8d9d5adb3e9a4', 'https://t2.rbxcdn.com/82cb24afec92ee77269760a7c0e522a2',
-                'https://t7.rbxcdn.com/3bd95ae760f426f1502f2de4880acf5b', 'https://t4.rbxcdn.com/d8df9a201fe4530dc87a103019bbaee5', 'https://t6.rbxcdn.com/76b1655e1e082d8b2bd681218eba89af'];
+            var crates = [
+                'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9NDE0NTI2OTgiLCJ0aXRsZSI6InRoZSBmaXJzdCBjcmF0ZSIsInByaWNlIjoxMDE4LCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTQ1MTIyMTMyOSIsIml0ZW1zIjpbeyJpZCI6IjM3NjUyNDQ4NyIsInRpY2tldHMiOjIwMDAwfSx7ImlkIjoiMzc2NTI2ODg4IiwidGlja2V0cyI6MjAwMDB9LHsiaWQiOiI0NTEyMjEzMjkiLCJ0aWNrZXRzIjo0MDAwMH0seyJpZCI6IjYzNjkwMDA4IiwidGlja2V0cyI6MTk5ODl9LHsiaWQiOiI0ODU0NTgwNiIsInRpY2tldHMiOjEwfV19'
+            ];
 
-            for (var i = 0; i < 4 * 3; i++) {
-                displayCard(
-                    giftImages[parseInt(Math.random() * giftImages.length)],
-                    giftTitles[parseInt(Math.random() * giftTitles.length)],
-                    1000,
-                    giftPreviews[parseInt(Math.random() * giftPreviews.length)]);
+            for (var i = 0; i < crates.length; i++) {
+                var c = JSON.parse(atob(crates[i]));
+                displayCard(c.items, c.img, c.title, c.price, c.preview);
             }
 
             for (var i = 0; i < userInventory.length; i++) {
@@ -514,8 +615,63 @@
                 else
                     $(".winning-numbers").hide(100);
             });
-        });
 
+            $("#caseName").on("keyup", function (e) {
+                $("#cratePreviewName").html($(this).val());
+            });
+
+            $("#catalogSearch").on("keyup", function (e) {
+                var query = $(this).val();
+                if (typeof (searchTimeout) != 'undefined')
+                    clearTimeout(searchTimeout);
+
+                searchTimeout = setTimeout(function () {
+                    $.ajax({
+                        url: 'https://crossorigin.me/' + searchEndPoint.format(encodeURIComponent(query)),
+                        success: function (data) {
+                            if (query == $("#catalogSearch").val()) {
+                                document.getElementById('catalogDiv').innerHTML = "";
+                                for (var i = 0; i < data.length; i++) {
+                                    var itemCard = htmlToElement(atob(itemTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', 'Loading...', '', ''));
+                                    var addButton = document.createElement('button');
+                                    addButton.setAttribute('class', 'btn waves-effect waves-light');
+                                    addButton.setAttribute('style', 'width: 100%');
+                                    addButton.innerHTML = "Add";
+                                    (function (id) {
+                                        addButton.onclick = function () {
+                                            var itemCard = htmlToElement(atob(creaTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', 'Loading...', '', ''));
+                                            (function (itemCard) {
+                                                getItem(id, function (listing) {
+                                                    itemCard.innerHTML = htmlToElement(atob(creaTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(listing.price), '', overlays[listing.overlay])).innerHTML;
+                                                });
+                                            })(itemCard);
+                                            itemCard.id = id;
+                                            document.getElementById('creatorDiv').appendChild(itemCard);
+                                        };
+                                    })(data[i].AssetId);
+                                    itemCard.children[1].appendChild(addButton);
+
+                                    (function (itemCard, id, addButton) {
+                                        getItem(id, function (listing) {
+                                            if (itemCard != null) {
+                                                itemCard.innerHTML = htmlToElement(atob(itemTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(listing.price), '', overlays[listing.overlay])).innerHTML;
+                                                itemCard.children[1].appendChild(addButton);
+                                            }
+                                        });
+                                    })(itemCard, data[i].AssetId, addButton);
+
+                                    document.getElementById('catalogDiv').appendChild(itemCard);
+                                }
+                            }
+                        }
+                    });
+                }, 1000);
+            });
+
+            setGiftsPage(0, 1);
+            $("#catalogSearch").keyup();
+        });
+        
         $("#signup_pass").on("focusout", function (e) {
             if ($(this).val() != $("#signup_confirmpass").val()) {
                 $("#signup_confirmpass").removeClass("valid").addClass("invalid");
@@ -538,14 +694,14 @@
         <div class="nav-wrapper container">
             <a id="logo-container" href="#" class="brand-logo"><img src="https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/logo.png" style="padding-top: 4px; height: 60px;" /></a>
             <ul class="right hide-on-med-and-down">
-                <li><a href="#">Crate Creator</a></li>
+                <li><a href="#crate-creator" class="modal-trigger">Crate Creator</a></li>
                 <li><a href="#deposit" class="modal-trigger">Deposit</a></li>
                 <li><a href="javascript:openInventory();">Inventory</a></li>
                 <a href="#signin" class="btn waves-effect waves-light orange modal-trigger">Sign In</a>
             </ul>
 
             <ul id="nav-mobile" class="side-nav" style="transform: translateX(-100%);">
-                <li><a href="#">Crate Creator</a></li>
+                <li><a href="#crate-creator" class="modal-trigger">Crate Creator</a></li>
                 <li><a href="#deposit" class="modal-trigger">Deposit</a></li>
                 <li><a href="javascript:openInventory();">Inventory</a></li>
                 <a href="#signin" class="btn waves-effect waves-light orange modal-trigger">Sign In</a>
@@ -665,6 +821,94 @@
         </div>
         <div class="modal-footer">
             <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
+        </div>
+    </div>
+
+    <div id="crate-creator" class="modal">
+        <div class="modal-content">
+            <div class="row">
+                <h4>Create Your Own Crate</h4>
+            </div>
+            <div class="row">
+                <div class="col s4">
+                    <span id="prevPage" class="waves-effect waves-green btn left" onclick="setGiftsPage(parseInt(document.getElementById('pageNumber').innerHTML) - 2, 1)">Prev Page</span>
+                </div>
+                <div class="col s4 center">
+                    Page <span id="pageNumber">1</span>
+                </div>
+                <div class="col s4">
+                    <span id="nextPage" class="waves-effect waves-green btn right" onclick="setGiftsPage(parseInt(document.getElementById('pageNumber').innerHTML), 2)">Next Page</span>
+                </div>
+                <div class="col s12">
+                    <div class="case-items" id="gifts" style="min-height: 380px">
+
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <form class="col s12">
+                    <div class="row modal-form-row">
+                        <div class="input-field col s12">
+                            <input id="caseName" type="text" class="validate">
+                            <label for="caseName">Case Name</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="row">
+                <p>Catalog</p>
+                <div class="row modal-form-row">
+                    <div class="input-field col s12">
+                        <input id="catalogSearch" type="text">
+                        <label for="catalogSearch">Search</label>
+                    </div>
+                </div>
+                <div class="case-items" id="catalogDiv">
+
+                </div>
+            </div>
+            <div class="row">
+                <p>Crate Items</p>
+                <div class="user-items" id="creatorDiv">
+
+                </div>
+                <p><span class="grey-text">Sum of Odds:</span> <span id="oddsSum">0</span>%</p>
+                <p><span class="grey-text">Price:</span> 
+                    <span class="green-text">
+                        <img style="max-height: 20px;" src="//rbx.place/img/funds.png" />
+                        <span id="calculatedPrice">Free</span>
+                    </span>
+                </p>
+            </div>
+            <div class="row">
+                <p>Preview</p>
+                <div class="card item">
+                    <div class="card-image">
+                        <img src="https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading-gift.png" id="cratePreviewIcon">
+                        <span class="crate-preview"><img src="https://t5.rbxcdn.com/b205dff257d73e647858c63c913b4b51" id="cratePreviewPreview"></span>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-title" id="cratePreviewName">Example Crate</span>
+                        <div class="col s6">
+                            <span class="grey-text">
+                                Price
+                            </span>
+                        </div>
+                        <div class="col s6">
+                            <span class="green-text align-price">
+                                <img style="max-height: 20px;" src="//rbx.place/img/funds.png" />
+                                <span id="cratePreviewPrice">Free</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-action">
+                        <span class="btn waves-effect waves-light green" disabled="disabled">OPEN CRATE</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Cancel</a> <a class="btn waves-effect waves-light green" onclick="createCrate();">Create Crate</a>
         </div>
     </div>
 
