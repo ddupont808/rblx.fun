@@ -348,8 +348,8 @@
             var audio = new Audio('https://raw.githubusercontent.com/Cryption/rblx.fun/master/tick.wav');
             var prize = new Audio('https://github.com/Cryption/rblx.fun/blob/master/prize.mp3?raw=true');
 
-            var targetIndex = parseInt(Math.random() * (crate.length - 20)) + 10;
-            for (var i = targetIndex; i < crate.length; i++) {
+            var targetIndex = crate.length - parseInt(Math.random() * crate.length * 0.3);
+            for (var i = targetIndex - 1; i >= 0; i--) {
                 if (crate[i].item.id == targetItem) {
                     targetIndex = i;
                     break;
@@ -360,7 +360,7 @@
 
             var targetX = (spinFrame.clientWidth / 2) - (crate[targetIndex].offsetLeft + (Math.random() * crate[targetIndex].clientWidth));
             var x = 0;
-            var maxSpeed = 50;
+            var maxSpeed = 70;
             if (typeof (currentSpin) != 'undefined')
                 clearInterval(currentSpin);
 
@@ -395,19 +395,22 @@
             document.getElementById('winningNumbersCheckbox').checked = false;
             document.getElementById('spinFrame').innerHTML = "";
             document.getElementById('caseInventory').innerHTML = "";
-            for (var j = 0; j < 25; j++) {
-                var shuffledItems = shuffle(items.slice(0));
-                for (var i = 0; i < items.length; i++) {
-                    var item = shuffledItems[i];
-                    var itemCard = htmlToElement(atob(itemTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', 'Loading...', '', ''));
-                    (function (itemCard) {
-                        getItem(item.id, function (listing) {
-                            itemCard.innerHTML = htmlToElement(atob(itemTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(listing.price), '', overlays[listing.overlay])).innerHTML;
-                        });
-                    })(itemCard);
-                    itemCard.item = item;
-                    document.getElementById('spinFrame').appendChild(itemCard);
-                }
+            var crateItems = [];
+            for (var i = 0; i < items.length * 50; i++) {
+                crateItems.push(items[i % items.length]);
+            }
+            crateItems = shuffle(crateItems);
+            
+            for (var i = 0; i < crateItems.length; i++) {
+                var item = crateItems[i];
+                var itemCard = htmlToElement(atob(itemTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', 'Loading...', '', ''));
+                (function (itemCard) {
+                    getItem(item.id, function (listing) {
+                        itemCard.innerHTML = htmlToElement(atob(itemTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(listing.price), '', overlays[listing.overlay])).innerHTML;
+                    });
+                })(itemCard);
+                itemCard.item = item;
+                document.getElementById('spinFrame').appendChild(itemCard);
             }
 
             var winningNumbers = 0;
@@ -494,7 +497,10 @@
                 toastr.error("The odds for any item cannot be less than 0.001!");
             } else {
                 console.log("New Crate!\nJSON: " + JSON.stringify(crate) + "\n\nBase64: " + btoa(JSON.stringify(crate)));
-                toastr.success("Crate logged to console");
+                toastr.success("Crate data logged to console");
+
+                $('#crate-creator').modal('close');
+                displayCard(crate.items, crate.img, crate.title, crate.price, crate.preview);
             }
         }
 
@@ -597,7 +603,9 @@
 
             var crates = [
                 'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9NDE0NTI2OTgiLCJ0aXRsZSI6InRoZSBmaXJzdCBjcmF0ZSIsInByaWNlIjoxMDE4LCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTQ1MTIyMTMyOSIsIml0ZW1zIjpbeyJpZCI6IjM3NjUyNDQ4NyIsInRpY2tldHMiOjIwMDAwfSx7ImlkIjoiMzc2NTI2ODg4IiwidGlja2V0cyI6MjAwMDB9LHsiaWQiOiI0NTEyMjEzMjkiLCJ0aWNrZXRzIjo0MDAwMH0seyJpZCI6IjYzNjkwMDA4IiwidGlja2V0cyI6MTk5ODl9LHsiaWQiOiI0ODU0NTgwNiIsInRpY2tldHMiOjEwfV19',
-                'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTM4MjE5ODIzIiwidGl0bGUiOiJleiBwcm9maXQiLCJwcmljZSI6MTQ0LCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTM3NjUyNjY3MyIsIml0ZW1zIjpbeyJpZCI6IjM3NjUyNjY3MyIsInRpY2tldHMiOjMzMDAwfSx7ImlkIjoiMjE1NzE5NTk4IiwidGlja2V0cyI6MTIwMDB9LHsiaWQiOiIyMDY0MjAwOCIsInRpY2tldHMiOjE1MDAwfSx7ImlkIjoiMTA2NjkwMDQ1IiwidGlja2V0cyI6MTAwMDB9LHsiaWQiOiIzNzY1NDg3MzgiLCJ0aWNrZXRzIjozMDAwMH1dfQ=='
+                'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTM4MjE5ODIzIiwidGl0bGUiOiJleiBwcm9maXQiLCJwcmljZSI6MTQ0LCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTM3NjUyNjY3MyIsIml0ZW1zIjpbeyJpZCI6IjM3NjUyNjY3MyIsInRpY2tldHMiOjMzMDAwfSx7ImlkIjoiMjE1NzE5NTk4IiwidGlja2V0cyI6MTIwMDB9LHsiaWQiOiIyMDY0MjAwOCIsInRpY2tldHMiOjE1MDAwfSx7ImlkIjoiMTA2NjkwMDQ1IiwidGlja2V0cyI6MTAwMDB9LHsiaWQiOiIzNzY1NDg3MzgiLCJ0aWNrZXRzIjozMDAwMH1dfQ==',
+                'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9NjMyMzUyMTAiLCJ0aXRsZSI6ImV6IGRvbWludXMiLCJwcmljZSI6MjgxMDMsInByZXZpZXciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9NTI3MzY1ODUyIiwiaXRlbXMiOlt7ImlkIjoiNTI3MzY1ODUyIiwidGlja2V0cyI6MjUwMDB9LHsiaWQiOiIxNjIzNzI4NDAiLCJ0aWNrZXRzIjozMDAwMH0seyJpZCI6IjEzNzQ1NTQ4IiwidGlja2V0cyI6NTAwMH0seyJpZCI6IjM3NjU0ODczOCIsInRpY2tldHMiOjUwMDB9LHsiaWQiOiIxNjYzMDE0NyIsInRpY2tldHMiOjUwMDB9LHsiaWQiOiIzNzY1MjY4ODgiLCJ0aWNrZXRzIjo1MDAwfSx7ImlkIjoiMzc2NTI0NDg3IiwidGlja2V0cyI6NTAwMH0seyJpZCI6IjI5OTUyODEwIiwidGlja2V0cyI6NTAwMH0seyJpZCI6IjQ1MTIyMTMyOSIsInRpY2tldHMiOjUwMDB9LHsiaWQiOiIxNzg3NzM0MCIsInRpY2tldHMiOjUwMDB9LHsiaWQiOiIxMzQ3NjkxNyIsInRpY2tldHMiOjUwMDB9XX0=',
+                'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTk2NDU0ODkiLCJ0aXRsZSI6InJlZCBjcmF0ZSIsInByaWNlIjoxMDgsInByZXZpZXciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTAyODYwNiIsIml0ZW1zIjpbeyJpZCI6IjQ4NDc0MzEzIiwidGlja2V0cyI6MzMwMDB9LHsiaWQiOiIxMDI4NjA2IiwidGlja2V0cyI6MjUwMDB9LHsiaWQiOiIzOTg2NzUxNzIiLCJ0aWNrZXRzIjoyNTAwMH0seyJpZCI6IjIyMTE3NTIzNiIsInRpY2tldHMiOjE3MDAwfV19'
             ];
 
             for (var i = 0; i < crates.length; i++) {
