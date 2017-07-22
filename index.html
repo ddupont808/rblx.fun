@@ -742,6 +742,8 @@
                 'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MzA0MzM1NjkxIiwidGl0bGUiOiJnb29kIHByb2ZpdCB3dGYiLCJwcmljZSI6MTM4LCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTEwNjY5MDA0NSIsIml0ZW1zIjpbeyJpZCI6IjEwNjY5MDA0NSIsInRpY2tldHMiOjgwMDAwfSx7ImlkIjoiMzc2NTQ4NzM4IiwidGlja2V0cyI6MjAwMDB9XX0='
             ];
 
+            crates = shuffle(crates);
+
             for (var i = 0; i < crates.length; i++) {
                 var c = JSON.parse(atob(crates[i]));
                 displayCard(c.items, c.img, c.title, c.price, c.preview);
