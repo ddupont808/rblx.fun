@@ -453,8 +453,14 @@
             robuxAmount -= price;
             var prize = testSpin();
 
+            toastr.success("Crate successfully purchased");
+
             userInventory.push(prize);
             addInventoryItem(prize);
+
+            setTimeout(function () {
+                toastr.info("A new item has been added to your inventory!");
+            }, 5000);
         }
 
         function testSpin() {
@@ -909,9 +915,9 @@
                 <li><a href="javascript:openInventory();">Inventory</a></li>
                 <a href="#signin" class="btn waves-effect waves-light orange modal-trigger">Sign In</a>
                 <li class="user-info" style="display: none;">
-                    <span id="nav-username">Urban420</span>
+                    <span id="nav-username"></span>
                     <img style="max-height: 28px; transform: translateY(10px); padding-left: 15px" src="https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/funds.png" />
-                    <span id="nav-robux-amount" style="font-weight: 500;">1,200</span>
+                    <span id="nav-robux-amount" style="font-weight: 500;"></span>
                 </li>
             </ul>
 
