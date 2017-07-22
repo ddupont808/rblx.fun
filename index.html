@@ -400,32 +400,39 @@
             var lowestBalance = 100000;
             var highestBalance = 0;
 
-            for (var i = 0; i < plays; i++) {
+            var items = spinFrame.items;
+            var priceCache = {};
+
+            for (var play = 0; play < plays; play++) {
                 var winningNumber = parseInt(Math.random() * spinFrame.winningNumbers);
 
                 var winningNumbers = 0;
-                var items = spinFrame.items;
                 for (var i = 0; i < items.length; i++) {
                     var item = items[i];
                     var numbersRange = winningNumbers + item.tickets;
 
                     if (winningNumber >= winningNumbers && winningNumber < numbersRange) {
                         targetItem = item.id;
+                        i = items.length;
                     }
 
                     winningNumbers = numbersRange;
                 }
 
                 var itemValue = 0;
-                for (var i = 0; i < crate.length; i++) {
-                    if (crate[i].item.id == targetItem) {
-                        var vegan = $(crate[1]).find('.align-price').text().trim();
-                        itemValue = vegan == "Free" ? 0 : parseInt(vegan.replace(/,/g, ''));
+                if (typeof (priceCache[targetItem]) == 'undefined') {
+                    for (var i = 0; i < crate.length; i++) {
+                        if (crate[i].item.id == targetItem) {
+                            var vegan = $(crate[1]).find('.align-price').text().trim();
+                            itemValue = vegan == "Free" ? 0 : parseInt(vegan.replace(/,/g, ''));
+                        }
                     }
+
+                    priceCache[targetItem] = itemValue;
                 }
 
-                lowestBalance += Math.min(itemValue, lowestBalance);
-                highestBalance += Math.max(itemValue, highestBalance);
+                lowestBalance = Math.min(itemValue, lowestBalance);
+                highestBalance = Math.max(itemValue, highestBalance);
                 userBalance += itemValue;
                 losses += (itemValue < price ? 1 : 0);
                 profits += (itemValue > price ? 1 : 0);
