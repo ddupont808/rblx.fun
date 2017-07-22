@@ -384,6 +384,57 @@
             }, 15);
         }
 
+        
+        function simulatePlay(plays) {
+            var pr = document.getElementById('cratePrice').innerHTML;
+            var price = pr == "Free" ? 0 : parseInt(pr.replace(/,/g, ''));
+
+            console.log("Simulation Start\nTotal User Balance: " + (plays * price) + "R$\nSite Balance: $" + ((plays * price) / 80));
+
+            var spinFrame = document.getElementById('spinFrame');
+            var crate = spinFrame.children;
+
+            var profits = 0;
+            var losses = 0;
+            var userBalance = 0;
+            var lowestBalance = 100000;
+            var highestBalance = 0;
+
+            for (var i = 0; i < plays; i++) {
+                var winningNumber = parseInt(Math.random() * spinFrame.winningNumbers);
+
+                var winningNumbers = 0;
+                var items = spinFrame.items;
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    var numbersRange = winningNumbers + item.tickets;
+
+                    if (winningNumber >= winningNumbers && winningNumber < numbersRange) {
+                        targetItem = item.id;
+                    }
+
+                    winningNumbers = numbersRange;
+                }
+
+                var itemValue = 0;
+                for (var i = 0; i < crate.length; i++) {
+                    if (crate[i].item.id == targetItem) {
+                        var vegan = $(crate[1]).find('.align-price').text().trim();
+                        itemValue = vegan == "Free" ? 0 : parseInt(vegan.replace(/,/g, ''));
+                    }
+                }
+
+                lowestBalance += Math.min(itemValue, lowestBalance);
+                highestBalance += Math.max(itemValue, highestBalance);
+                userBalance += itemValue;
+                losses += (itemValue < price ? 1 : 0);
+                profits += (itemValue > price ? 1 : 0);
+            }
+
+            console.log("Simulation Complete\n# of Wins: " + profits + "\n# of Losses: " + losses + "\nTotal User Balance: " + userBalance + "\nLowest Balance: " + lowestBalance + "\nHighest Balance: " + highestBalance + "\nAverage Balance: " + (userBalance / plays));
+            console.log("Site Revenue: $" + (((plays * price) - userBalance) / 80) + "\nSite Balance: $" + ((plays * price) / 80));
+        }
+        
         function displayCrateOpener(btn) {
             var items = btn.parentElement.parentElement.crateItems;
 
