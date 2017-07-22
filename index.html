@@ -423,7 +423,7 @@
 
             console.log("Simulation Complete\n# of Wins: " + profits + "\n# of Losses: " + losses + "\nTotal User Balance: " + userBalance + "\nLowest Balance: " + lowestBalance + "\nHighest Balance: " + highestBalance + "\nAverage Balance: " + (userBalance / plays));
             console.log("Site Revenue: $" + (((plays * price) - userBalance) / 80) + "\nSite Balance: $" + ((plays * price) / 80));
-            console.log("Lowest winning number: " + lowestWinningNumber + "\nHighest winning number: " + highestWinningNumber);
+            console.log("Lowest winning number: " + lowestWinningNumber + "\nHighest winning number: " + highestWinningNumber + "\nAverage Profit Per User: " + ((((plays * price) - userBalance) / 80) / plays));
         }
 
         function testSpin() {
