@@ -208,7 +208,12 @@
         };
 
         var itemCache = [];
-        var userInventory = ['376524487', '376524487', '376524487'];
+        var userInventory = [];
+
+        var robuxAmount = 2500;
+        var lastRobux = 2500;
+
+        var signedIn = false;
 
         var overlays = ['', '<img src="https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/limited.png" class="item-overlay">', '<img src="https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/limitedunique.png" class="item-overlay">'];
 
@@ -431,6 +436,27 @@
             console.log("Lowest winning number: " + lowestWinningNumber + "\nHighest winning number: " + highestWinningNumber + "\nAverage Profit Per User: " + ((((plays * price) - userBalance) / 80) / plays));
         }
 
+        function openCrate() {
+            if (!signedIn) {
+                toastr.error("You must be signed in to open crates!");
+                return;
+            }
+
+            var cp = document.getElementById('cratePrice');
+            var price = cp.innerHTML == 'Free' ? 0 : parseInt(cp.innerHTML.replace(/,/g, ''));
+
+            if (robuxAmount < price) {
+                toastr.error("Insufficient funds");
+                return;
+            }
+
+            robuxAmount -= price;
+            var prize = testSpin();
+
+            userInventory.push(prize);
+            addInventoryItem(prize);
+        }
+
         function testSpin() {
             var targetItem = "";
             var spinFrame = document.getElementById('spinFrame');
@@ -488,6 +514,8 @@
                 spinFrame.style.transform = "translateX(" + -x + "px)";
                 spinFrame.style.msTransform = "translateX(" + -x + "px)";
             }, 15);
+
+            return targetItem;
         }
 
         function recalculateCratePrice() {
@@ -574,6 +602,7 @@
             (function (itemCard) {
                 getItem(id, function (listing) {
                     itemCard.innerHTML = htmlToElement(atob(inveTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(listing.price), '', overlays[listing.overlay])).innerHTML;
+                    itemCard.item = listing;
                 });
             })(itemCard);
             document.getElementById('inventoryDiv').appendChild(itemCard);
@@ -581,14 +610,17 @@
 
         function convertToRobux(btn) {
             var item = btn.parentElement.parentElement.parentElement;
+            robuxAmount += item.item.price;
             $(item).hide(250);
         }
 
         function convertAllToRobux() {
             userInventory = [];
             var inv = document.getElementById('inventoryDiv').children;
-            for (var i = 0; i < inv.length; i++)
+            for (var i = 0; i < inv.length; i++) {
+                robuxAmount += inv[i].item.price;
                 $(inv[i]).hide(250);
+            }
         }
 
         function openInventory() {
@@ -748,7 +780,8 @@
                 'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTM3NjE2MTczIiwidGl0bGUiOiJGUm96ZW5DQXNlIDIuMCIsInByaWNlIjo0NTAsInByZXZpZXciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTMyMzM2NyIsIml0ZW1zIjpbeyJpZCI6IjEzOTU3NDQxOSIsInRpY2tldHMiOjUwMDB9LHsiaWQiOiIxNjgxNDEzMDEiLCJ0aWNrZXRzIjoxNTAwMH0seyJpZCI6IjEwMTA3ODU1OSIsInRpY2tldHMiOjk1MDB9LHsiaWQiOiIxMzIzMzY3IiwidGlja2V0cyI6NTAwfSx7ImlkIjoiNDIyNjQ5NTMiLCJ0aWNrZXRzIjoyMDAwMH0seyJpZCI6IjMyNzMxODkzNSIsInRpY2tldHMiOjUwMDAwfV19',
                 'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MzQxMTU4NjUiLCJ0aXRsZSI6IkJsdWUgQ3JhdGUiLCJwcmljZSI6MjAzLCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTQxNzQ1Nzg0NSIsIml0ZW1zIjpbeyJpZCI6IjQxNzQ1Nzg0NSIsInRpY2tldHMiOjUwMDAwfSx7ImlkIjoiMTY0NDgyNDA5IiwidGlja2V0cyI6MjAwMDB9LHsiaWQiOiIzNjU2MzI1OTciLCJ0aWNrZXRzIjoyMDAwMH0seyJpZCI6IjEzMDk5MTgiLCJ0aWNrZXRzIjoxMDAwMH1dfQ==',
                 'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTkwMDc2NDQ5IiwidGl0bGUiOiJjaGVhcCBmdW4gY2FzZSIsInByaWNlIjoyLCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTEyMTk0NjM4NyIsIml0ZW1zIjpbeyJpZCI6IjE2NjMwMTQ3IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjM3NjU0ODczOCIsInRpY2tldHMiOjk5MDAwfV19',
-                'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9NjM2OTAwMDgiLCJ0aXRsZSI6IkJhY29uIEhhaXIiLCJwcmljZSI6MTA0LCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTYzNjkwMDA4IiwiaXRlbXMiOlt7ImlkIjoiNjM2OTAwMDgiLCJ0aWNrZXRzIjoxMDAwMDB9XX0='
+                'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9NjM2OTAwMDgiLCJ0aXRsZSI6IkJhY29uIEhhaXIiLCJwcmljZSI6MTA0LCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTYzNjkwMDA4IiwiaXRlbXMiOlt7ImlkIjoiNjM2OTAwMDgiLCJ0aWNrZXRzIjoxMDAwMDB9XX0=',
+                'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9OTQxMjIzNjYiLCJ0aXRsZSI6IldpdGNoIFdoaWNoIiwicHJpY2UiOjQ2OSwicHJldmlldyI6Imh0dHBzOi8vd3d3LnJvYmxveC5jb20vVGh1bWJzL0Fzc2V0LmFzaHg/d2lkdGg9NDIwJmhlaWdodD00MjAmYXNzZXRJZD0zMTM1NDQ1MjIiLCJpdGVtcyI6W3siaWQiOiIxMDcyNzg1MiIsInRpY2tldHMiOjE1MDAwfSx7ImlkIjoiMTMyODk3Mjc3IiwidGlja2V0cyI6MTUwMDB9LHsiaWQiOiIxMzMzNjA1NDIiLCJ0aWNrZXRzIjo1MDAwfSx7ImlkIjoiNTIwNzA1MyIsInRpY2tldHMiOjYwMDB9LHsiaWQiOiIzMTM1NDQ1MjIiLCJ0aWNrZXRzIjoxMDAwMH0seyJpZCI6IjMxMzU0NzA4NyIsInRpY2tldHMiOjEyMDAwfSx7ImlkIjoiMzEzNTQ1NDg1IiwidGlja2V0cyI6MTcwMDB9LHsiaWQiOiIzNzY1MjY4ODgiLCJ0aWNrZXRzIjoyMDAwMH1dfQ=='
             ];
 
             crates = shuffle(crates);
@@ -757,11 +790,7 @@
                 var c = JSON.parse(atob(crates[i]));
                 displayCard(c.items, c.img, c.title, c.price, c.preview);
             }
-
-            for (var i = 0; i < userInventory.length; i++) {
-                addInventoryItem(userInventory[i]);
-            }
-
+            
             $('#winningNumbersCheckbox').on('change', function () {
                 var c = this.checked;
                 if (c)
@@ -823,7 +852,16 @@
             $("#catalogSearch").keyup();
             $(".button-collapse").sideNav();
 
+            var beep = new Audio('https://raw.githubusercontent.com/Cryption/rblx.fun/master/beep.wav');
             setInterval(recalculateCratePrice, 150);
+            setInterval(function () {
+                document.getElementById('nav-robux-amount').innerHTML = lastRobux.toLocaleString();
+                if (lastRobux != robuxAmount) {
+                    beep.currentTime = 0;
+                    beep.play();
+                }
+                lastRobux += Math.round((robuxAmount - lastRobux) * .6);
+            }, 50);
         });
         
         $("#signup_pass").on("focusout", function (e) {
@@ -841,6 +879,23 @@
                 $(this).removeClass("invalid").addClass("valid");
             }
         });
+
+        function signin(user, pass) {
+            $("[href='#signin']").hide();
+            $(".user-info").show(250);
+            $("#nav-username").text(user);
+            $("#signin").modal('hide');
+
+            for (var i = 0; i < userInventory.length; i++) {
+                addInventoryItem(userInventory[i]);
+            }
+
+            signedIn = true;
+        }
+
+        function signup(user, pass) {
+            signin(user, pass);
+        }
     </script>
 </head>
 <body>
@@ -852,10 +907,10 @@
                 <li><a href="#deposit" class="modal-trigger">Deposit</a></li>
                 <li><a href="javascript:openInventory();">Inventory</a></li>
                 <a href="#signin" class="btn waves-effect waves-light orange modal-trigger">Sign In</a>
-                <li class="user-info">
-                    Urban420
-                    <img style="max-height: 28px; transform: translateY(10px)" src="https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/funds.png" />
-                    1,200
+                <li class="user-info" style="display: none;">
+                    <span id="nav-username">Urban420</span>
+                    <img style="max-height: 28px; transform: translateY(10px); padding-left: 15px" src="https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/funds.png" />
+                    <span id="nav-robux-amount" style="font-weight: 500;">1,200</span>
                 </li>
             </ul>
 
@@ -908,7 +963,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <a class="modal-action modal-close btn waves-effect waves-light orange">Sign In</a>
+                <a class="modal-action modal-close btn waves-effect waves-light orange" onclick="signin(document.getElementById('signin_user').value, document.getElementById('signin_pass').value);">Sign In</a>
             </div>
         </div>
         <div id="sign-up">
@@ -951,7 +1006,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <a class="modal-action modal-close btn waves-effect waves-light orange">Sign Up</a>
+                <a class="modal-action modal-close btn waves-effect waves-light orange" onclick="signup(document.getElementById('signup_user').value, document.getElementById('signup_pass').value);">Sign Up</a>
             </div>
         </div>
     </div>
@@ -1131,7 +1186,7 @@
                     </p>
                 </div>
                 <div class="col s6 right">
-                    <span class="waves-effect waves-green btn right green">Open This Crate</span>
+                    <span class="waves-effect waves-green btn right green" onclick="openCrate();">Open This Crate</span>
                 </div>
             </div>
             <div class="row">
