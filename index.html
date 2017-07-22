@@ -225,6 +225,29 @@
             return array;
         }
 
+        function proxy(url, callback) {
+            /*$.ajax({
+                type: "POST",
+                url: "http://localhost:50905/Default.aspx/GetJson",
+                data: JSON.stringify({ url: url }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (msg) {
+                    if (msg.d == "error") {
+                        $.get('//crossorigin.me/' + url, function (data) {
+                            callback(data);
+                        });
+                    } else {
+                        callback(JSON.parse(msg.d));
+                    }
+                }
+            });*/
+
+            $.get('//crossorigin.me/' + url, function (data) {
+                callback(data);
+            });
+        }
+
         function getValue(price) {
             return price <= 0 ? "Free" : price.toLocaleString();
         }
@@ -262,67 +285,132 @@
 
             itemCache.push(itemCacheObj);
 
-            $.ajax({
-                url: 'https://crossorigin.me/' + itemEndPoint.format(id),
-                success: function (data) {
-                    var responseJson = data;
-                    var price = 0;
+            proxy(itemEndPoint.format(id), function (data) {
+                var responseJson = data;
+                var price = 0;
 
-                    console.log(responseJson);
+                console.log(responseJson);
 
-                    if (!responseJson.IsPublicDomain) {
-                        if (responseJson.IsForSale || responseJson.IsLimited || responseJson.IsLimitedUnique) {
-                            if (responseJson.IsLimited || responseJson.IsLimitedUnique) {
-                                $.ajax({
-                                    url: 'https://crossorigin.me/' + catalogEndPoint.format(responseJson.Creator.Id, responseJson.Name),
-                                    success: function (data) {
-                                        var listingJson = data[0];
+                if (!responseJson.IsPublicDomain) {
+                    if (responseJson.IsForSale || responseJson.IsLimited || responseJson.IsLimitedUnique) {
+                        if (responseJson.IsLimited || responseJson.IsLimitedUnique) {
+                            proxy(catalogEndPoint.format(responseJson.Creator.Id, responseJson.Name), function (data) {
+                                var listingJson = data[0];
 
-                                        if (listingJson.AssetId == responseJson.AssetId) {
-                                            itemCacheObj.item = {
-                                                img: thumbnailEndPoint.format(id),
-                                                name: responseJson.Name,
-                                                price: parseInt(listingJson.BestPrice.replace(/,/g, '')),
-                                                overlay: responseJson.IsLimitedUnique ? 2 : (responseJson.IsLimited ? 1 : 0)
-                                            };
-                                            itemCacheObj.downloaded = true;
-                                            for (var i = 0; i < itemCacheObj.callbacks.length; i++) {
-                                                itemCacheObj.callbacks[i](itemCacheObj.item);
-                                            }
-                                        } else {
-                                            itemCacheObj.downloaded = true;
-                                            for (var i = 0; i < itemCacheObj.callbacks.length; i++) {
-                                                itemCacheObj.callbacks[i](invalidItem);
-                                            }
-                                        }
+                                if (listingJson.AssetId == responseJson.AssetId) {
+                                    itemCacheObj.item = {
+                                        img: thumbnailEndPoint.format(id),
+                                        name: responseJson.Name,
+                                        price: parseInt(listingJson.BestPrice.replace(/,/g, '')),
+                                        overlay: responseJson.IsLimitedUnique ? 2 : (responseJson.IsLimited ? 1 : 0)
+                                    };
+                                    itemCacheObj.downloaded = true;
+                                    for (var i = 0; i < itemCacheObj.callbacks.length; i++) {
+                                        itemCacheObj.callbacks[i](itemCacheObj.item);
                                     }
-                                });
-                                
-                                return;
-                            } else {
-                                price = responseJson.PriceInRobux;
-                            }
-                        } else {
-                            itemCacheObj.downloaded = true;
-                            for (var i = 0; i < itemCacheObj.callbacks.length; i++) {
-                                itemCacheObj.callbacks[i](invalidItem);
-                            }
+                                } else {
+                                    itemCacheObj.downloaded = true;
+                                    for (var i = 0; i < itemCacheObj.callbacks.length; i++) {
+                                        itemCacheObj.callbacks[i](invalidItem);
+                                    }
+                                }
+                            });
+
                             return;
+                        } else {
+                            price = responseJson.PriceInRobux;
+                        }
+                    } else {
+                        itemCacheObj.downloaded = true;
+                        for (var i = 0; i < itemCacheObj.callbacks.length; i++) {
+                            itemCacheObj.callbacks[i](invalidItem);
+                        }
+                        return;
+                    }
+                }
+
+                itemCacheObj.downloaded = true;
+                itemCacheObj.item = {
+                    img: thumbnailEndPoint.format(id),
+                    name: responseJson.Name,
+                    price: price,
+                    overlay: responseJson.IsLimitedUnique ? 2 : (responseJson.IsLimited ? 1 : 0)
+                };
+                for (var i = 0; i < itemCacheObj.callbacks.length; i++) {
+                    itemCacheObj.callbacks[i](itemCacheObj.item);
+                }
+            });
+        }
+
+        function simulatePlay(plays, perDeposit) {
+            var pr = document.getElementById('cratePrice').innerHTML;
+            var price = pr == "Free" ? 0 : parseInt(pr.replace(/,/g, ''));
+
+            if (perDeposit == true) {
+                plays = (plays * 5 * 80) / price;
+            }
+
+            console.log("Simulation Start\nTotal User Balance: " + (plays * price) + "R$\nSite Balance: $" + ((plays * price) / 80));
+
+            var spinFrame = document.getElementById('spinFrame');
+            var crate = spinFrame.children;
+
+            var profits = 0;
+            var losses = 0;
+            var userBalance = 0;
+            var lowestBalance = 100000;
+            var highestBalance = 0;
+
+            var items = spinFrame.items;
+            var priceCache = {};
+
+            var lowestWinningNumber = 100000000;
+            var highestWinningNumber = 0;
+
+            for (var play = 0; play < plays; play++) {
+                var winningNumber = parseInt(Math.random() * spinFrame.winningNumbers);
+                var targetItem = "";
+
+                lowestWinningNumber = Math.min(winningNumber, lowestWinningNumber);
+                highestWinningNumber = Math.max(winningNumber, highestWinningNumber);
+                
+                var winningNumbers = 0;
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    var numbersRange = winningNumbers + item.tickets;
+
+                    if (winningNumber >= winningNumbers && winningNumber < numbersRange) {
+                        targetItem = item.id;
+                        i = items.length;
+                    }
+
+                    winningNumbers = numbersRange;
+                }
+
+                var itemValue = 0;
+                if (typeof (priceCache[targetItem]) == 'undefined') {
+                    for (var i = 0; i < crate.length; i++) {
+                        if (crate[i].item.id == targetItem) {
+                            var vegan = $(crate[i]).find('.align-price').text().trim();
+                            itemValue = vegan == "Free" ? 0 : parseInt(vegan.replace(/,/g, ''));
                         }
                     }
 
-                    itemCacheObj.downloaded = true;
-                    itemCacheObj.item = {
-                        img: thumbnailEndPoint.format(id),
-                        name: responseJson.Name,
-                        price: price,
-                        overlay: responseJson.IsLimitedUnique ? 2 : (responseJson.IsLimited ? 1 : 0)
-                    };
-                    for (var i = 0; i < itemCacheObj.callbacks.length; i++) {
-                        itemCacheObj.callbacks[i](itemCacheObj.item);
-                    }
+                    priceCache[targetItem] = itemValue;
+                } else {
+                    itemValue = priceCache[targetItem];
                 }
-            });
+
+                lowestBalance = Math.min(itemValue, lowestBalance);
+                highestBalance = Math.max(itemValue, highestBalance);
+                userBalance += itemValue;
+                losses += (itemValue < price ? 1 : 0);
+                profits += (itemValue > price ? 1 : 0);
+            }
+
+            console.log("Simulation Complete\n# of Wins: " + profits + "\n# of Losses: " + losses + "\nTotal User Balance: " + userBalance + "\nLowest Balance: " + lowestBalance + "\nHighest Balance: " + highestBalance + "\nAverage Balance: " + (userBalance / plays));
+            console.log("Site Revenue: $" + (((plays * price) - userBalance) / 80) + "\nSite Balance: $" + ((plays * price) / 80));
+            console.log("Lowest winning number: " + lowestWinningNumber + "\nHighest winning number: " + highestWinningNumber);
         }
 
         function testSpin() {
@@ -384,64 +472,6 @@
             }, 15);
         }
 
-        
-        function simulatePlay(plays) {
-            var pr = document.getElementById('cratePrice').innerHTML;
-            var price = pr == "Free" ? 0 : parseInt(pr.replace(/,/g, ''));
-
-            console.log("Simulation Start\nTotal User Balance: " + (plays * price) + "R$\nSite Balance: $" + ((plays * price) / 80));
-
-            var spinFrame = document.getElementById('spinFrame');
-            var crate = spinFrame.children;
-
-            var profits = 0;
-            var losses = 0;
-            var userBalance = 0;
-            var lowestBalance = 100000;
-            var highestBalance = 0;
-
-            var items = spinFrame.items;
-            var priceCache = {};
-
-            for (var play = 0; play < plays; play++) {
-                var winningNumber = parseInt(Math.random() * spinFrame.winningNumbers);
-
-                var winningNumbers = 0;
-                for (var i = 0; i < items.length; i++) {
-                    var item = items[i];
-                    var numbersRange = winningNumbers + item.tickets;
-
-                    if (winningNumber >= winningNumbers && winningNumber < numbersRange) {
-                        targetItem = item.id;
-                        i = items.length;
-                    }
-
-                    winningNumbers = numbersRange;
-                }
-
-                var itemValue = 0;
-                if (typeof (priceCache[targetItem]) == 'undefined') {
-                    for (var i = 0; i < crate.length; i++) {
-                        if (crate[i].item.id == targetItem) {
-                            var vegan = $(crate[1]).find('.align-price').text().trim();
-                            itemValue = vegan == "Free" ? 0 : parseInt(vegan.replace(/,/g, ''));
-                        }
-                    }
-
-                    priceCache[targetItem] = itemValue;
-                }
-
-                lowestBalance = Math.min(itemValue, lowestBalance);
-                highestBalance = Math.max(itemValue, highestBalance);
-                userBalance += itemValue;
-                losses += (itemValue < price ? 1 : 0);
-                profits += (itemValue > price ? 1 : 0);
-            }
-
-            console.log("Simulation Complete\n# of Wins: " + profits + "\n# of Losses: " + losses + "\nTotal User Balance: " + userBalance + "\nLowest Balance: " + lowestBalance + "\nHighest Balance: " + highestBalance + "\nAverage Balance: " + (userBalance / plays));
-            console.log("Site Revenue: $" + (((plays * price) - userBalance) / 80) + "\nSite Balance: $" + ((plays * price) / 80));
-        }
-        
         function displayCrateOpener(btn) {
             var items = btn.parentElement.parentElement.crateItems;
 
@@ -454,7 +484,7 @@
             document.getElementById('spinFrame').innerHTML = "";
             document.getElementById('caseInventory').innerHTML = "";
             var crateItems = [];
-            for (var i = 0; i < items.length * 50; i++) {
+            for (var i = 0; i < Math.max(items.length * 50, 250); i++) {
                 crateItems.push(items[i % items.length]);
             }
             crateItems = shuffle(crateItems);
@@ -529,7 +559,7 @@
                 price += Math.ceil((val == "Free" ? 0 : parseFloat(val)) * (parseFloat($(n).val(), 10) / 100.0));
             });
 
-            price = Math.ceil(price * 1.02);
+            price = Math.ceil(price * 1.15);
 
             var crate = {
                 img: document.getElementById('cratePreviewIcon').src,
@@ -572,7 +602,7 @@
                 price += Math.ceil((val == "Free" ? 0 : parseFloat(val)) * (parseFloat($(n).val(), 10) / 100.0));
             });
 
-            price = Math.ceil(price * 1.02);
+            price = Math.ceil(price * 1.15);
 
             document.getElementById('oddsSum').innerHTML = sum;
             document.getElementById('calculatedPrice').innerHTML = getValue(price);
@@ -603,33 +633,30 @@
             document.getElementById('prevPage').setAttribute('disabled', 'disabled');
 
             setTimeout(function () {
-                $.ajax({
-                    url: 'https://crossorigin.me/' + giftsEndPoint.format(page, direction, pageHash),
-                    success: function (data) {
-                        pageHash = data.PageHash;
+                proxy(giftsEndPoint.format(page, direction, pageHash), function (data) {
+                    pageHash = data.PageHash;
 
-                        document.getElementById('nextPage').removeAttribute('disabled');
-                        document.getElementById('prevPage').removeAttribute('disabled');
-                        
-                        if (parseInt(document.getElementById('pageNumber').innerHTML) == (page + 1)) {
-                            for (var i = 0; i < data.Items.length; i++) {
-                                var itemCard = htmlToElement(atob(itemTemplate).format(thumbnailEndPoint.format(data.Items[i].AssetId), '', '', '', ''));
-                                var addButton = document.createElement('button');
-                                addButton.setAttribute('class', 'btn waves-effect waves-light');
-                                addButton.setAttribute('style', 'width: 100%');
-                                addButton.innerHTML = "Set Icon";
-                                (function (id) {
-                                    addButton.onclick = function () {
-                                        document.getElementById('cratePreviewIcon').src = thumbnailEndPoint.format(id);
-                                    };
-                                })(data.Items[i].AssetId);
-                                itemCard.children[1].appendChild(addButton);
+                    document.getElementById('nextPage').removeAttribute('disabled');
+                    document.getElementById('prevPage').removeAttribute('disabled');
 
-                                var content = itemCard.children[1];
-                                content.removeChild(content.children[2]);
+                    if (parseInt(document.getElementById('pageNumber').innerHTML) == (page + 1)) {
+                        for (var i = 0; i < data.Items.length; i++) {
+                            var itemCard = htmlToElement(atob(itemTemplate).format(thumbnailEndPoint.format(data.Items[i].AssetId), '', '', '', ''));
+                            var addButton = document.createElement('button');
+                            addButton.setAttribute('class', 'btn waves-effect waves-light');
+                            addButton.setAttribute('style', 'width: 100%');
+                            addButton.innerHTML = "Set Icon";
+                            (function (id) {
+                                addButton.onclick = function () {
+                                    document.getElementById('cratePreviewIcon').src = thumbnailEndPoint.format(id);
+                                };
+                            })(data.Items[i].AssetId);
+                            itemCard.children[1].appendChild(addButton);
 
-                                document.getElementById('gifts').appendChild(itemCard);
-                            }
+                            var content = itemCard.children[1];
+                            content.removeChild(content.children[2]);
+
+                            document.getElementById('gifts').appendChild(itemCard);
                         }
                     }
                 });
@@ -659,17 +686,9 @@
             $('.modal').modal();
             $('ul.tabs').tabs();
 
-            var crates = [
-                'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9NDE0NTI2OTgiLCJ0aXRsZSI6InRoZSBmaXJzdCBjcmF0ZSIsInByaWNlIjoxMDE4LCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTQ1MTIyMTMyOSIsIml0ZW1zIjpbeyJpZCI6IjM3NjUyNDQ4NyIsInRpY2tldHMiOjIwMDAwfSx7ImlkIjoiMzc2NTI2ODg4IiwidGlja2V0cyI6MjAwMDB9LHsiaWQiOiI0NTEyMjEzMjkiLCJ0aWNrZXRzIjo0MDAwMH0seyJpZCI6IjYzNjkwMDA4IiwidGlja2V0cyI6MTk5ODl9LHsiaWQiOiI0ODU0NTgwNiIsInRpY2tldHMiOjEwfV19',
-                'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTM4MjE5ODIzIiwidGl0bGUiOiJleiBwcm9maXQiLCJwcmljZSI6MTQ0LCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTM3NjUyNjY3MyIsIml0ZW1zIjpbeyJpZCI6IjM3NjUyNjY3MyIsInRpY2tldHMiOjMzMDAwfSx7ImlkIjoiMjE1NzE5NTk4IiwidGlja2V0cyI6MTIwMDB9LHsiaWQiOiIyMDY0MjAwOCIsInRpY2tldHMiOjE1MDAwfSx7ImlkIjoiMTA2NjkwMDQ1IiwidGlja2V0cyI6MTAwMDB9LHsiaWQiOiIzNzY1NDg3MzgiLCJ0aWNrZXRzIjozMDAwMH1dfQ==',
-                'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9NjMyMzUyMTAiLCJ0aXRsZSI6ImV6IGRvbWludXMiLCJwcmljZSI6MjgxMDMsInByZXZpZXciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9NTI3MzY1ODUyIiwiaXRlbXMiOlt7ImlkIjoiNTI3MzY1ODUyIiwidGlja2V0cyI6MjUwMDB9LHsiaWQiOiIxNjIzNzI4NDAiLCJ0aWNrZXRzIjozMDAwMH0seyJpZCI6IjEzNzQ1NTQ4IiwidGlja2V0cyI6NTAwMH0seyJpZCI6IjM3NjU0ODczOCIsInRpY2tldHMiOjUwMDB9LHsiaWQiOiIxNjYzMDE0NyIsInRpY2tldHMiOjUwMDB9LHsiaWQiOiIzNzY1MjY4ODgiLCJ0aWNrZXRzIjo1MDAwfSx7ImlkIjoiMzc2NTI0NDg3IiwidGlja2V0cyI6NTAwMH0seyJpZCI6IjI5OTUyODEwIiwidGlja2V0cyI6NTAwMH0seyJpZCI6IjQ1MTIyMTMyOSIsInRpY2tldHMiOjUwMDB9LHsiaWQiOiIxNzg3NzM0MCIsInRpY2tldHMiOjUwMDB9LHsiaWQiOiIxMzQ3NjkxNyIsInRpY2tldHMiOjUwMDB9XX0=',
-                'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTk2NDU0ODkiLCJ0aXRsZSI6InJlZCBjcmF0ZSIsInByaWNlIjoxMDgsInByZXZpZXciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTAyODYwNiIsIml0ZW1zIjpbeyJpZCI6IjQ4NDc0MzEzIiwidGlja2V0cyI6MzMwMDB9LHsiaWQiOiIxMDI4NjA2IiwidGlja2V0cyI6MjUwMDB9LHsiaWQiOiIzOTg2NzUxNzIiLCJ0aWNrZXRzIjoyNTAwMH0seyJpZCI6IjIyMTE3NTIzNiIsInRpY2tldHMiOjE3MDAwfV19',
-                'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTgxMjA2NzMzIiwidGl0bGUiOiI1MC81MCBwcm9maXQiLCJwcmljZSI6NDM0LCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTE5Mzk4MjU4IiwiaXRlbXMiOlt7ImlkIjoiMzc2NTI2NjczIiwidGlja2V0cyI6NTAwMDB9LHsiaWQiOiIyMTU3MTk1OTgiLCJ0aWNrZXRzIjoyMDAwMH0seyJpZCI6IjE5Mzk4MjU4IiwidGlja2V0cyI6MzAwMDB9XX0=',
-                'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MzAyMjEzNjIyIiwidGl0bGUiOiJlenB6IGxpbWl0ZWQiLCJwcmljZSI6MjQwLCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTkwNDUxODM0OCIsIml0ZW1zIjpbeyJpZCI6IjM3NjUyNjY3MyIsInRpY2tldHMiOjYwMDAwfSx7ImlkIjoiMTkzOTgyNTgiLCJ0aWNrZXRzIjoxMDAwMH0seyJpZCI6IjkwNDUxODM0OCIsInRpY2tldHMiOjEwMDAwfSx7ImlkIjoiMjI5NzAxMTQiLCJ0aWNrZXRzIjo1MDAwfSx7ImlkIjoiMzIxNTcwNTEyIiwidGlja2V0cyI6NTAwMH0seyJpZCI6IjU4MzI0NzUiLCJ0aWNrZXRzIjoxMDAwMH1dfQ==',
-                'eyJpbWciOiJodHRwczovL3Q0LnJieGNkbi5jb20vYTM5MjY0M2FiNGNmM2I1NTM5MzIwMGY4NWI2ZDBhMjMiLCJ0aXRsZSI6IndpbGwgeW91IHdpbiB0aGUgZG9taW51cz8iLCJwcmljZSI6MTExMiwicHJldmlldyI6Imh0dHBzOi8vd3d3LnJvYmxveC5jb20vVGh1bWJzL0Fzc2V0LmFzaHg/d2lkdGg9NDIwJmhlaWdodD00MjAmYXNzZXRJZD01MjczNjU4NTIiLCJpdGVtcyI6W3siaWQiOiI1MjczNjU4NTIiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiNjM2OTAwMDgiLCJ0aWNrZXRzIjo5OTAwMH1dfQ==',
-                'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTM3NjE2MTczIiwidGl0bGUiOiJGUm96ZW5DQXNlIiwicHJpY2UiOjU4LCJwcmV2aWV3IjoiaHR0cHM6Ly90NS5yYnhjZG4uY29tL2IyMDVkZmYyNTdkNzNlNjQ3ODU4YzYzYzkxM2I0YjUxIiwiaXRlbXMiOlt7ImlkIjoiMjcxMTI0MzgiLCJ0aWNrZXRzIjoyMDAwMH0seyJpZCI6IjEwNjY5MDA0NSIsInRpY2tldHMiOjEwMDAwfSx7ImlkIjoiMzc2NTI2NjczIiwidGlja2V0cyI6NDUwMDB9LHsiaWQiOiIxNjYzMDE0NyIsInRpY2tldHMiOjIwMDAwfSx7ImlkIjoiOTA0NTE4MzQ4IiwidGlja2V0cyI6NTAwMH1dfQ==',
-                'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTgxNjUxNDczIiwidGl0bGUiOiI4MCUgcHJvZml0IiwicHJpY2UiOjEzLCJwcmV2aWV3IjoiaHR0cHM6Ly90NS5yYnhjZG4uY29tL2IyMDVkZmYyNTdkNzNlNjQ3ODU4YzYzYzkxM2I0YjUxIiwiaXRlbXMiOlt7ImlkIjoiMjcxMTI0MzgiLCJ0aWNrZXRzIjo4MDAwMH0seyJpZCI6IjM3NjUyNzM1MCIsInRpY2tldHMiOjIwMDAwfV19'
-            ];
+            var crates =
+                ["eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy…4OX0seyJpZCI6IjQ4NTQ1ODA2IiwidGlja2V0cyI6MTB9XX0=", "eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy…iaWQiOiIzNzY1NDg3MzgiLCJ0aWNrZXRzIjozMDAwMH1dfQ==", "eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy…9LHsiaWQiOiIxMzQ3NjkxNyIsInRpY2tldHMiOjUwMDB9XX0=", "eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy…seyJpZCI6IjIyMTE3NTIzNiIsInRpY2tldHMiOjE3MDAwfV19", "eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy…7ImlkIjoiMTkzOTgyNTgiLCJ0aWNrZXRzIjozMDAwMH1dfQ==", "eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy…wfSx7ImlkIjoiNTgzMjQ3NSIsInRpY2tldHMiOjEwMDAwfV19", "eyJpbWciOiJodHRwczovL3Q0LnJieGNkbi5jb20vYTM5MjY0M2…9LHsiaWQiOiI2MzY5MDAwOCIsInRpY2tldHMiOjk5MDAwfV19", "eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy…7ImlkIjoiOTA0NTE4MzQ4IiwidGlja2V0cyI6NTAwMH1dfQ==", "eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy…iaWQiOiIzNzY1MjczNTAiLCJ0aWNrZXRzIjoyMDAwMH1dfQ==", "eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy…seyJpZCI6IjE3ODc3MzQwIiwidGlja2V0cyI6MTAwMH1dfQ=="]0: "eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9NDE0NTI2OTgiLCJ0aXRsZSI6InRoZSBmaXJzdCBjcmF0ZSIsInByaWNlIjoxMTQ3Ljc0NTA5ODAzOTIxNTUsInByZXZpZXciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9NDUxMjIxMzI5IiwiaXRlbXMiOlt7ImlkIjoiMzc2NTI0NDg3IiwidGlja2V0cyI6MjAwMDB9LHsiaWQiOiIzNzY1MjY4ODgiLCJ0aWNrZXRzIjoyMDAwMH0seyJpZCI6IjQ1MTIyMTMyOSIsInRpY2tldHMiOjQwMDAwfSx7ImlkIjoiNjM2OTAwMDgiLCJ0aWNrZXRzIjoxOTk4OX0seyJpZCI6IjQ4NTQ1ODA2IiwidGlja2V0cyI6MTB9XX0="1: "eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTM4MjE5ODIzIiwidGl0bGUiOiJleiBwcm9maXQiLCJwcmljZSI6MTYyLjM1Mjk0MTE3NjQ3MDU4LCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTM3NjUyNjY3MyIsIml0ZW1zIjpbeyJpZCI6IjM3NjUyNjY3MyIsInRpY2tldHMiOjMzMDAwfSx7ImlkIjoiMjE1NzE5NTk4IiwidGlja2V0cyI6MTIwMDB9LHsiaWQiOiIyMDY0MjAwOCIsInRpY2tldHMiOjE1MDAwfSx7ImlkIjoiMTA2NjkwMDQ1IiwidGlja2V0cyI6MTAwMDB9LHsiaWQiOiIzNzY1NDg3MzgiLCJ0aWNrZXRzIjozMDAwMH1dfQ=="2: "eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9NjMyMzUyMTAiLCJ0aXRsZSI6ImV6IGRvbWludXMiLCJwcmljZSI6MzE2ODQuNzU0OTAxOTYwNzgsInByZXZpZXciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9NTI3MzY1ODUyIiwiaXRlbXMiOlt7ImlkIjoiNTI3MzY1ODUyIiwidGlja2V0cyI6MjUwMDB9LHsiaWQiOiIxNjIzNzI4NDAiLCJ0aWNrZXRzIjozMDAwMH0seyJpZCI6IjEzNzQ1NTQ4IiwidGlja2V0cyI6NTAwMH0seyJpZCI6IjM3NjU0ODczOCIsInRpY2tldHMiOjUwMDB9LHsiaWQiOiIxNjYzMDE0NyIsInRpY2tldHMiOjUwMDB9LHsiaWQiOiIzNzY1MjY4ODgiLCJ0aWNrZXRzIjo1MDAwfSx7ImlkIjoiMzc2NTI0NDg3IiwidGlja2V0cyI6NTAwMH0seyJpZCI6IjI5OTUyODEwIiwidGlja2V0cyI6NTAwMH0seyJpZCI6IjQ1MTIyMTMyOSIsInRpY2tldHMiOjUwMDB9LHsiaWQiOiIxNzg3NzM0MCIsInRpY2tldHMiOjUwMDB9LHsiaWQiOiIxMzQ3NjkxNyIsInRpY2tldHMiOjUwMDB9XX0="3: "eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTk2NDU0ODkiLCJ0aXRsZSI6InJlZCBjcmF0ZSIsInByaWNlIjoxMjEuNzY0NzA1ODgyMzUyOTMsInByZXZpZXciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTAyODYwNiIsIml0ZW1zIjpbeyJpZCI6IjQ4NDc0MzEzIiwidGlja2V0cyI6MzMwMDB9LHsiaWQiOiIxMDI4NjA2IiwidGlja2V0cyI6MjUwMDB9LHsiaWQiOiIzOTg2NzUxNzIiLCJ0aWNrZXRzIjoyNTAwMH0seyJpZCI6IjIyMTE3NTIzNiIsInRpY2tldHMiOjE3MDAwfV19"4: "eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTgxMjA2NzMzIiwidGl0bGUiOiI1MC81MCBwcm9maXQiLCJwcmljZSI6NDg5LjMxMzcyNTQ5MDE5NjEsInByZXZpZXciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTkzOTgyNTgiLCJpdGVtcyI6W3siaWQiOiIzNzY1MjY2NzMiLCJ0aWNrZXRzIjo1MDAwMH0seyJpZCI6IjIxNTcxOTU5OCIsInRpY2tldHMiOjIwMDAwfSx7ImlkIjoiMTkzOTgyNTgiLCJ0aWNrZXRzIjozMDAwMH1dfQ=="5: "eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MzAyMjEzNjIyIiwidGl0bGUiOiJlenB6IGxpbWl0ZWQiLCJwcmljZSI6MjcwLjU4ODIzNTI5NDExNzYsInByZXZpZXciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9OTA0NTE4MzQ4IiwiaXRlbXMiOlt7ImlkIjoiMzc2NTI2NjczIiwidGlja2V0cyI6NjAwMDB9LHsiaWQiOiIxOTM5ODI1OCIsInRpY2tldHMiOjEwMDAwfSx7ImlkIjoiOTA0NTE4MzQ4IiwidGlja2V0cyI6MTAwMDB9LHsiaWQiOiIyMjk3MDExNCIsInRpY2tldHMiOjUwMDB9LHsiaWQiOiIzMjE1NzA1MTIiLCJ0aWNrZXRzIjo1MDAwfSx7ImlkIjoiNTgzMjQ3NSIsInRpY2tldHMiOjEwMDAwfV19"6: "eyJpbWciOiJodHRwczovL3Q0LnJieGNkbi5jb20vYTM5MjY0M2FiNGNmM2I1NTM5MzIwMGY4NWI2ZDBhMjMiLCJ0aXRsZSI6IndpbGwgeW91IHdpbiB0aGUgZG9taW51cz8iLCJwcmljZSI6MTI1My43MjU0OTAxOTYwNzg1LCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTUyNzM2NTg1MiIsIml0ZW1zIjpbeyJpZCI6IjUyNzM2NTg1MiIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiI2MzY5MDAwOCIsInRpY2tldHMiOjk5MDAwfV19"7: "eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTM3NjE2MTczIiwidGl0bGUiOiJGUm96ZW5DQXNlIiwicHJpY2UiOjY1LjM5MjE1Njg2Mjc0NTA4LCJwcmV2aWV3IjoiaHR0cHM6Ly90NS5yYnhjZG4uY29tL2IyMDVkZmYyNTdkNzNlNjQ3ODU4YzYzYzkxM2I0YjUxIiwiaXRlbXMiOlt7ImlkIjoiMjcxMTI0MzgiLCJ0aWNrZXRzIjoyMDAwMH0seyJpZCI6IjEwNjY5MDA0NSIsInRpY2tldHMiOjEwMDAwfSx7ImlkIjoiMzc2NTI2NjczIiwidGlja2V0cyI6NDUwMDB9LHsiaWQiOiIxNjYzMDE0NyIsInRpY2tldHMiOjIwMDAwfSx7ImlkIjoiOTA0NTE4MzQ4IiwidGlja2V0cyI6NTAwMH1dfQ=="8: "eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTgxNjUxNDczIiwidGl0bGUiOiI4MCUgcHJvZml0IiwicHJpY2UiOjE0LjY1Njg2Mjc0NTA5ODAzNywicHJldmlldyI6Imh0dHBzOi8vdDUucmJ4Y2RuLmNvbS9iMjA1ZGZmMjU3ZDczZTY0Nzg1OGM2M2M5MTNiNGI1MSIsIml0ZW1zIjpbeyJpZCI6IjI3MTEyNDM4IiwidGlja2V0cyI6ODAwMDB9LHsiaWQiOiIzNzY1MjczNTAiLCJ0aWNrZXRzIjoyMDAwMH1dfQ=="9: "eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MzI5NjQwNDY3IiwidGl0bGUiOiIxIHBlcmNlbnQgYWxsIiwicHJpY2UiOjYwMDAuMjk0MTE3NjQ3MDU5LCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTE1NjMzNTIiLCJpdGVtcyI6W3siaWQiOiIxOTM5ODI1OCIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIyMTU3MTk1OTgiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMTA2NjkwMDQ1IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjM3NjU0ODczOCIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIxNjYzMDE0NyIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIyNzExMjQzOCIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiI5MDQ1MTgzNDgiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMzAzOTM1NDgiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMzQ5MDE5NjEiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMTMwMTEzMTQ2IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjExMTgxOTE0MSIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiI0Mjg0NTYwOSIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIxMTY2OTM3NjQiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMTU4ODUxMjEiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiOTQyMzMzNDQiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMjkwOTk3NDkiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMjEyMjk2OTM2IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjI2MDE0NTM2IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjI2MDE3NDc4IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjEzMDk5MTEiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiOTI1NDUyMSIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIxNzkyNjY4NiIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiI1MTYxNTE0IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjEwNTQ2MjM4IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjEwMTMwOTc5IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjkwMTA5MDUwNiIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIxMDgzMjE0MSIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIxMjg2NDk2IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjEwMTMwOTY0IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjkzMDUwNTcyIiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjIxMDY5OTcyIiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjMxMzEyNDgwIiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjExMTQyNDg3IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjEzNDgyNDE2MyIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIxMDY3ODQyMyIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIzNDc2NDQ0NyIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiI2ODMyNTQ4NCIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIyNjgxOTc4MzkiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMTU1OTU4NzIiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMTA4NjAzODQiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMTUzMjM4OSIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiI0Njc5MzU3MjMiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMTIxMzg5Mzg5IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjI0NDE1OTU2NCIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIxNzA4OTI4NDgiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMjEyMzU4MDI3IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjUzMjE4MTA3NiIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiI2Nzk5NjMwOSIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIzMTk2NTYzMzkiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMTAzMTQ5MiIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIyOTUzMjI4NiIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIxODc4NDY2MDQiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMTA5MDc1MjkiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMTM0ODI0MTYzIiwidGlja2V0cyI6MTAwMH0seyJpZCI6Ijc0ODkxNTQ1IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjMyNzk3Njk3IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjM2MjAyOTQ3MCIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIyMzI2NDI5NiIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiI1ODM2NDI0OSIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIyMzY0NDk2MCIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIzOTE0OTExODQiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMTgxNjQ0NTIyIiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjE1OTE5OTAzOCIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiI0MTQ1MzEwOSIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIyODI3NzQ4NiIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIxMTgyODE2MDkiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMjA5ODAxMzgiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiODk0OTE0MDciLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiODA1NzY5NTIiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMTE1NjMyNTEiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMTgyNjUxOTUiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiOTIxNDI5NTAiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMTA4ODc1MjE2IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjIzMzUxOTk5OCIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiI1MDQ1NDA4NiIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiI4ODE0NjQ5NyIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIxNTE3ODQzMjAiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiNDQxMTM5NjgiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMTA0NzYzNTkiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMTAyOTAyNSIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIxOTAyNzIwOSIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIxMzkxNTI0NzIiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiNjU1MjgxMiIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIxMDI4NjA2IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjEwMzM3MjIiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMTAyODg1OSIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIxNTYzMzUyIiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjEwNzM2OTAiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMjg1MDI5OTciLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMTM0NzcxNjIiLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMTY2MzAxNDciLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMzc2NTI0NDg3IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjM3NjUyNjg4OCIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIyOTk1MjgxMCIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIxMzc0NTU0OCIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiIxMzQ3NjkxNyIsInRpY2tldHMiOjEwMDB9LHsiaWQiOiI3MjczMjA4NzciLCJ0aWNrZXRzIjoxMDAwfSx7ImlkIjoiMjYwMzY5ODE0IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjYzNjkwMDA4IiwidGlja2V0cyI6MTAwMH0seyJpZCI6IjE3ODc3MzQwIiwidGlja2V0cyI6MTAwMH1dfQ==",
+                    ];
 
 
             for (var i = 0; i < crates.length; i++) {
@@ -699,42 +718,39 @@
                     clearTimeout(searchTimeout);
 
                 searchTimeout = setTimeout(function () {
-                    $.ajax({
-                        url: 'https://crossorigin.me/' + searchEndPoint.format(encodeURIComponent(query)),
-                        success: function (data) {
-                            if (query == $("#catalogSearch").val()) {
-                                document.getElementById('catalogDiv').innerHTML = "";
-                                for (var i = 0; i < data.length; i++) {
-                                    var itemCard = htmlToElement(atob(itemTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', 'Loading...', '', ''));
-                                    var addButton = document.createElement('button');
-                                    addButton.setAttribute('class', 'btn waves-effect waves-light');
-                                    addButton.setAttribute('style', 'width: 100%');
-                                    addButton.innerHTML = "Add";
-                                    (function (id) {
-                                        addButton.onclick = function () {
-                                            var itemCard = htmlToElement(atob(creaTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', 'Loading...', '', ''));
-                                            (function (itemCard) {
-                                                getItem(id, function (listing) {
-                                                    itemCard.innerHTML = htmlToElement(atob(creaTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(listing.price), '', overlays[listing.overlay])).innerHTML;
-                                                });
-                                            })(itemCard);
-                                            itemCard.id = id;
-                                            document.getElementById('creatorDiv').appendChild(itemCard);
-                                        };
-                                    })(data[i].AssetId);
-                                    itemCard.children[1].appendChild(addButton);
+                    proxy(searchEndPoint.format(encodeURIComponent(query)), function (data) {
+                        if (query == $("#catalogSearch").val()) {
+                            document.getElementById('catalogDiv').innerHTML = "";
+                            for (var i = 0; i < data.length; i++) {
+                                var itemCard = htmlToElement(atob(itemTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', 'Loading...', '', ''));
+                                var addButton = document.createElement('button');
+                                addButton.setAttribute('class', 'btn waves-effect waves-light');
+                                addButton.setAttribute('style', 'width: 100%');
+                                addButton.innerHTML = "Add";
+                                (function (id) {
+                                    addButton.onclick = function () {
+                                        var itemCard = htmlToElement(atob(creaTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', 'Loading...', '', ''));
+                                        (function (itemCard) {
+                                            getItem(id, function (listing) {
+                                                itemCard.innerHTML = htmlToElement(atob(creaTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(listing.price), '', overlays[listing.overlay])).innerHTML;
+                                            });
+                                        })(itemCard);
+                                        itemCard.id = id;
+                                        document.getElementById('creatorDiv').appendChild(itemCard);
+                                    };
+                                })(data[i].AssetId);
+                                itemCard.children[1].appendChild(addButton);
 
-                                    (function (itemCard, id, addButton) {
-                                        getItem(id, function (listing) {
-                                            if (itemCard != null) {
-                                                itemCard.innerHTML = htmlToElement(atob(itemTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(listing.price), '', overlays[listing.overlay])).innerHTML;
-                                                itemCard.children[1].appendChild(addButton);
-                                            }
-                                        });
-                                    })(itemCard, data[i].AssetId, addButton);
+                                (function (itemCard, id, addButton) {
+                                    getItem(id, function (listing) {
+                                        if (itemCard != null) {
+                                            itemCard.innerHTML = htmlToElement(atob(itemTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(listing.price), '', overlays[listing.overlay])).innerHTML;
+                                            itemCard.children[1].appendChild(addButton);
+                                        }
+                                    });
+                                })(itemCard, data[i].AssetId, addButton);
 
-                                    document.getElementById('catalogDiv').appendChild(itemCard);
-                                }
+                                document.getElementById('catalogDiv').appendChild(itemCard);
                             }
                         }
                     });
@@ -743,6 +759,7 @@
 
             setGiftsPage(0, 1);
             $("#catalogSearch").keyup();
+            $(".button-collapse").sideNav();
         });
         
         $("#signup_pass").on("focusout", function (e) {
@@ -779,11 +796,11 @@
                 <li><a href="javascript:openInventory();">Inventory</a></li>
                 <a href="#signin" class="btn waves-effect waves-light orange modal-trigger">Sign In</a>
             </ul>
-            <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+            <a href="#nav-mobile" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
         </div>
     </nav>
 
-    <div id="signin" class="modal" style="width:20%">
+    <div id="signin" class="modal" style="max-width: 384px">
         <div class="modal-header">
             <div class="row">
                 <div class="col s12">
