@@ -472,6 +472,36 @@
             }, 15);
         }
 
+        function recalculateCratePrice() {
+            var spinFrame = document.getElementById('spinFrame');
+            var crate = spinFrame.children;
+
+            var items = spinFrame.items;
+            var calculatedPrice = 0;
+
+            if (typeof (items) == 'undefined')
+                return;
+
+            for (var j = 0; j < items.length; j++) {
+                var targetItem = items[j].id;
+                var hasItem = false;
+                for (var i = 0; i < crate.length; i++) {
+                    if (crate[i].item.id == targetItem && !hasItem) {
+                        var vegan = $(crate[i]).find('.align-price').text().trim();
+                        if (vegan == "Loading...")
+                            return;
+
+                        var itemValue = vegan == "Free" ? 0 : parseInt(vegan.replace(/,/g, ''));
+
+                        calculatedPrice += Math.ceil((itemValue) * (items[j].tickets / 100000.0));
+                        hasItem = true;
+                    }
+                }
+            }
+
+            document.getElementById('cratePrice').innerHTML = getValue(Math.ceil(calculatedPrice * 1.15));
+        }
+
         function displayCrateOpener(btn) {
             var items = btn.parentElement.parentElement.crateItems;
 
@@ -495,6 +525,7 @@
                 (function (itemCard) {
                     getItem(item.id, function (listing) {
                         itemCard.innerHTML = htmlToElement(atob(itemTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(listing.price), '', overlays[listing.overlay])).innerHTML;
+                        recalculateCratePrice();
                     });
                 })(itemCard);
                 itemCard.item = item;
@@ -758,6 +789,8 @@
             setGiftsPage(0, 1);
             $("#catalogSearch").keyup();
             $(".button-collapse").sideNav();
+
+            setInterval(recalculateCratePrice, 150);
         });
         
         $("#signup_pass").on("focusout", function (e) {
