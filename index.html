@@ -1269,7 +1269,7 @@
         google.charts.load('current', { 'packages': ['table'] });
 
         function fm(n) {
-            return { v: n, f: '$' + (n * 80).toLocaleString() };
+            return { v: n, f: '$' + (n / 80).toLocaleString() };
         }
 
         function drawTable() {
