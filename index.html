@@ -993,6 +993,10 @@
                 }
                 lastRobux += Math.round((robuxAmount - lastRobux) * .6);
             }, 50);
+
+            if (getParameterByName('referral') != '') {
+                localStorage.setItem('referral', getParameterByName('referral'));
+            }
         });
         
         $("#signup_pass").on("focusout", function (e) {
@@ -1010,6 +1014,17 @@
                 $(this).removeClass("invalid").addClass("valid");
             }
         });
+
+        function getParameterByName(name) {
+            name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+            var regexS = "[\\?&]" + name + "=([^&#]*)";
+            var regex = new RegExp(regexS);
+            var results = regex.exec(window.location.href);
+            if (results == null)
+                return "";
+            else
+                return decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
 
         function signin(user, pass) {
             $.ajax({
@@ -1067,7 +1082,7 @@
             $.ajax({
                 type: "POST",
                 url: "//api.rblx.fun/Default.aspx/Register",
-                data: JSON.stringify({ user: user, pass: pass }),
+                data: JSON.stringify({ user: user, pass: pass, referral: localStorage.referral }),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (msg) {
