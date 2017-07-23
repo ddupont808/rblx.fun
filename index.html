@@ -276,15 +276,19 @@
             return price <= 0 ? "Free" : price.toLocaleString();
         }
 
-        function displayCard(items, img, title, price, preview) {
+        function displayCard(id, items, img, title, price, preview, first) {
             var crates = document.getElementById('crates');
             var card = htmlToElement(atob(cardTemplate).format(removeTags(img), removeTags(title), getValue(price), removeTags(preview)));
 
             card.crateTitle = title;
             card.cratePrice = price;
             card.crateItems = items;
+            card.crateId = id;
 
-            crates.appendChild(card);
+            if (first)
+                crates.insertBefore(card, crates.firstChild);
+            else
+                crates.appendChild(card);
         }
 
         function getItem(id, callback) {
@@ -581,14 +585,50 @@
             document.getElementById('cratePrice').innerHTML = getValue(Math.ceil(calculatedPrice * 1.15));
         }
 
-        function displayCrateOpener(btn) {
-            var items = btn.parentElement.parentElement.crateItems;
+        function displayCrateById(id) {
+            $.ajax({
+                type: "POST",
+                url: "//api.rblx.fun/Default.aspx/GetCase",
+                data: JSON.stringify({ caseId: id }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (msg) {
+                    var response = JSON.parse(msg.d);
+                    if (typeof (response["error"]) != 'undefined') {
+                        toastr.error(response["error"]);
+                    } else {
+                        var crate = response;
+
+                        var cratePrice = 0;
+                        for (var j = 0; j < crate.items.length; j++) {
+                            var item = crate.items[j];
+                            cratePrice += item.price * (item.tickets / 100000);
+                        }
+                        cratePrice = Math.ceil(cratePrice * 1.15);
+
+                        displayCrateOpener(displayCard(crate.id, crate.items, crate.img, crate.title, cratePrice, crate.preview, true));
+                    }
+                },
+                error: function () {
+                    toastr.error("An error occured while processing this action, please try again later");
+                }
+            });
+        }
+
+        function displayCrateOpener(crateCard) {
+            if (typeof (crateCard.crateId) == 'undefined')
+                crateCard = crateCard.parentElement.parentElement;
+
+            var items = crateCard.crateItems;
+
+            var newurl = window.location.protocol + '//rblx.fun/?crate=' + crateCard.crateId;
+            window.history.pushState({ path: newurl }, '', newurl);
 
             if (typeof (currentSpin) != 'undefined')
                 clearInterval(currentSpin);
 
-            document.getElementById('crateTitle').innerHTML = removeTags(btn.parentElement.parentElement.crateTitle);
-            document.getElementById('cratePrice').innerHTML = getValue(btn.parentElement.parentElement.cratePrice);
+            document.getElementById('crateTitle').innerHTML = removeTags(crateCard.crateTitle);
+            document.getElementById('cratePrice').innerHTML = getValue(crateCard.cratePrice);
             document.getElementById('winningNumbersCheckbox').checked = false;
             document.getElementById('spinFrame').innerHTML = "";
             document.getElementById('caseInventory').innerHTML = "";
@@ -758,7 +798,7 @@
                             window.history.pushState({ path: newurl }, '', newurl);
 
                             $('#crate-creator').modal('close');
-                            displayCard(crate.items, crate.img, crate.title, crate.price, crate.preview);
+                            displayCrateOpener(displayCard(response.success, crate.items, crate.img, crate.title, crate.price, crate.preview, true));
                         }
                     },
                     error: function () {
@@ -790,7 +830,7 @@
                             }
                             cratePrice = Math.ceil(cratePrice * 1.15);
 
-                            displayCard(crate.items, crate.img, crate.title, cratePrice, crate.preview);
+                            displayCard(crate.id, crate.items, crate.img, crate.title, cratePrice, crate.preview);
                         }
                     }
                 },
@@ -996,6 +1036,10 @@
 
             if (getParameterByName('referral') != '') {
                 localStorage.setItem('referral', getParameterByName('referral'));
+            }
+
+            if (getParameterByName('crate') != '') {
+                displayCrateById(getParameterByName('crate'));
             }
         });
         
