@@ -624,11 +624,11 @@
         function displayCrateOpener(crateCard) {
             if (typeof (crateCard.crateId) == 'undefined')
                 crateCard = crateCard.parentElement.parentElement;
-
             var items = crateCard.crateItems;
 
             var newurl = window.location.protocol + '//rblx.fun/?crate=' + crateCard.crateId;
             window.history.pushState({ path: newurl }, '', newurl);
+            window.caseId = crateCard.crateId;
 
             if (typeof (currentSpin) != 'undefined')
                 clearInterval(currentSpin);
