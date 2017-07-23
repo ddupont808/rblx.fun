@@ -649,7 +649,7 @@
                 var itemCard = htmlToElement(atob(itemTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', 'Loading...', '', ''));
                 (function (itemCard) {
                     getItem(item.id, function (listing) {
-                        itemCard.innerHTML = htmlToElement(atob(itemTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(item.price), '', overlays[listing.overlay])).innerHTML;
+                        itemCard.innerHTML = htmlToElement(atob(itemTemplate).format(thumbnailEndPoint.format(item.id), removeTags(listing.name), getValue(item.price), '', overlays[listing.overlay])).innerHTML;
                         //recalculateCratePrice();
                     });
                 })(itemCard);
@@ -663,7 +663,7 @@
                 var itemCard = htmlToElement(atob(itemTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', 'Loading...', '', ''));
                 (function (itemCard, winningNumbers, item) {
                     getItem(item.id, function (listing) {
-                        itemCard.innerHTML = htmlToElement(atob(itemTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(item.price), '<span class="winning-numbers" ' + (document.getElementById('winningNumbersCheckbox').checked ? '' : 'style="display: none"') + '>' + winningNumbers + ' - ' + (winningNumbers + item.tickets) + '</span>', overlays[listing.overlay])).innerHTML;
+                        itemCard.innerHTML = htmlToElement(atob(itemTemplate).format(thumbnailEndPoint.format(item.id), removeTags(listing.name), getValue(item.price), '<span class="winning-numbers" ' + (document.getElementById('winningNumbersCheckbox').checked ? '' : 'style="display: none"') + '>' + winningNumbers + ' - ' + (winningNumbers + item.tickets) + '</span>', overlays[listing.overlay])).innerHTML;
                     });
                 })(itemCard, winningNumbers, item);
                 winningNumbers += item.tickets;
@@ -680,10 +680,11 @@
             var itemCard = htmlToElement(atob(inveTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', getValue(price), '', ''));
             (function (itemCard) {
                 getItem(id, function (listing) {
-                    itemCard.innerHTML = htmlToElement(atob(inveTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(price), '', overlays[listing.overlay])).innerHTML;
+                    itemCard.innerHTML = htmlToElement(atob(inveTemplate).format(thumbnailEndPoint.format(id), removeTags(listing.name), getValue(price), '', overlays[listing.overlay])).innerHTML;
                     itemCard.item = listing;
                 });
             })(itemCard);
+            itemCard.itemId = id;
             document.getElementById('inventoryDiv').appendChild(itemCard);
         }
         
@@ -693,7 +694,7 @@
             $.ajax({
                 type: "POST",
                 url: "//api.rblx.fun/Default.aspx/ConvertToRobux",
-                data: JSON.stringify({ token: localStorage.token, id: item.item.id }),
+                data: JSON.stringify({ token: localStorage.token, id: item.itemId }),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (msg) {
@@ -1000,7 +1001,7 @@
                                         var itemCard = htmlToElement(atob(creaTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', 'Loading...', '', ''));
                                         (function (itemCard) {
                                             getItem(id, function (listing) {
-                                                itemCard.innerHTML = htmlToElement(atob(creaTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(listing.price), '', overlays[listing.overlay])).innerHTML;
+                                                itemCard.innerHTML = htmlToElement(atob(creaTemplate).format(thumbnailEndPoint.format(id), removeTags(listing.name), getValue(listing.price), '', overlays[listing.overlay])).innerHTML;
                                             });
                                         })(itemCard);
                                         itemCard.id = id;
@@ -1012,7 +1013,7 @@
                                 (function (itemCard, id, addButton) {
                                     getItem(id, function (listing) {
                                         if (itemCard != null) {
-                                            itemCard.innerHTML = htmlToElement(atob(itemTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(listing.price), '', overlays[listing.overlay])).innerHTML;
+                                            itemCard.innerHTML = htmlToElement(atob(itemTemplate).format(thumbnailEndPoint.format(id), removeTags(listing.name), getValue(listing.price), '', overlays[listing.overlay])).innerHTML;
                                             itemCard.children[1].appendChild(addButton);
                                         }
                                     });
