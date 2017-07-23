@@ -1119,10 +1119,15 @@
                         robuxAmount = response.balance;
                         lastRobux = response.balance;
 
-                        userInventory = response.inventory;
+                        if (userInventory.length != response.inventory.length) {
+                            userInventory = [];
+                            document.getElementById('inventoryDiv').innerHTML = "";
 
-                        for (var i = 0; i < userInventory.length; i++) {
-                            addInventoryItem(userInventory[i].id, userInventory[i].price);
+                            userInventory = response.inventory;
+
+                            for (var i = 0; i < userInventory.length; i++) {
+                                addInventoryItem(userInventory[i].id, userInventory[i].price);
+                            }
                         }
 
                         signedIn = true;
