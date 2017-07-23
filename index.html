@@ -1146,7 +1146,6 @@
                         $("#signin").modal('close');
 
                         robuxAmount = response.balance;
-                        checkAdmin();
 
                         if (userInventory.length != response.inventory.length) {
                             userInventory = [];
@@ -1160,6 +1159,7 @@
                         }
 
                         signedIn = true;
+                        checkAdmin();
                     }
                 },
                 error: function () {
@@ -1196,13 +1196,13 @@
                         lastRobux = response.balance;
 
                         userInventory = response.inventory;
-                        checkAdmin();
 
                         for (var i = 0; i < userInventory.length; i++) {
                             addInventoryItem(userInventory[i].id, userInventory[i].price);
                         }
 
                         signedIn = true;
+                        checkAdmin();
                     }
                 },
                 error: function () {
