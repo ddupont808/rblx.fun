@@ -249,9 +249,9 @@
         }
 
         function proxy(url, callback) {
-            /*$.ajax({
+            $.ajax({
                 type: "POST",
-                url: "http://localhost:50905/Default.aspx/GetJson",
+                url: "//api.kazok.men/Default.aspx/GetJson",
                 data: JSON.stringify({ url: url }),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
@@ -264,10 +264,6 @@
                         callback(JSON.parse(msg.d));
                     }
                 }
-            });*/
-
-            $.get('//crossorigin.me/' + url, function (data) {
-                callback(data);
             });
         }
 
@@ -1212,9 +1208,9 @@
     <div class="section no-pad-bot" id="index-banner">
         <div class="container">
             <br><br>
-            <h1 class="header center orange-text">Welcome to <a href="http://rblx.fun">RBLX.Fun</a></h1>
+            <h1 class="header center orange-text">Welcome to <a href="https://rblx.fun">RBLX.Fun</a></h1>
             <div class="row center">
-                <h5 class="header col s12 light"><a href="http://rblx.fun">RBLX.Fun</a> is a crate opening site where you can play and win items. Sign up to begin opening crates and win the items of your dreams</h5>
+                <h5 class="header col s12 light"><a href="https://rblx.fun">RBLX.Fun</a> is a crate opening site where you can play and win items. Sign up to begin opening crates and win the items of your dreams</h5>
             </div>
             <div class="row center">
                 <a href="#signin" id="discord-button" class="btn-large waves-effect waves-light orange modal-trigger" onclick="$('[href=\'#sign-in\']').click()">SIGN IN</a>
