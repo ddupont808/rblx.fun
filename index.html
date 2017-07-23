@@ -279,21 +279,21 @@
         function displayCard(id, items, img, title, price, preview, first) {
             var crates = document.getElementById('crates');
             var card = htmlToElement(atob(cardTemplate).format(removeTags(img), removeTags(title), getValue(price), removeTags(preview)));
-
-            for (var i = 0; i < crates.children.length; i++)
-                if (crates.children[i].crateId == id)
-                    return;
-
+            
+            
             card.crateTitle = title;
             card.cratePrice = price;
             card.crateItems = items;
             card.crateId = id;
 
+            for (var i = 0; i < crates.children.length; i++)
+                if (crates.children[i].crateId == id)
+                    return card;
+
             if (first)
                 crates.insertBefore(card, crates.firstChild);
             else
                 crates.appendChild(card);
-
             return card;
         }
 
