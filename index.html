@@ -1082,7 +1082,7 @@
             $.ajax({
                 type: "POST",
                 url: "//api.rblx.fun/Default.aspx/Register",
-                data: JSON.stringify({ user: user, pass: pass, referral: localStorage.referral }),
+                data: JSON.stringify({ user: user, pass: pass, referral: typeof (localStorage.referral) == 'undefined' ? '' : localStorage.referral }),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (msg) {
