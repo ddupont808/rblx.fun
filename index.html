@@ -446,17 +446,34 @@
                 return;
             }
 
-            robuxAmount -= price;
-            var prize = testSpin();
+            $.ajax({
+                type: "POST",
+                url: "//api.rblx.fun/Default.aspx/PurchaseCase",
+                data: JSON.stringify({ token: localStorage.token, caseId: caseId }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (msg) {
+                    var response = JSON.parse(msg.d);
+                    if (typeof (response["error"]) != 'undefined') {
+                        toastr.error(response["error"]);
+                    } else {
+                        robuxAmount -= price;
+                        var prize = response.prize;
+                        console.log("Winning Number: " + response.winningNumber)
 
-            toastr.success("Crate successfully purchased");
+                        toastr.success("Crate successfully purchased");
 
-            userInventory.push(prize);
-            addInventoryItem(prize);
+                        userInventory.push(prize);
+                        addInventoryItem(prize.id, prize.price);
 
-            setTimeout(function () {
-                toastr.info("A new item has been added to your inventory!");
-            }, 10000);
+                        targetedSpin(prize.id);
+
+                        setTimeout(function () {
+                            toastr.info("A new item has been added to your inventory!");
+                        }, 10000);
+                    }
+                }
+            });
         }
 
         function testSpin() {
@@ -479,6 +496,14 @@
                 winningNumbers = numbersRange;
             }
 
+            console.log("New Test Spin!\nWinning Number: " + winningNumber);
+            targetedSpin(targetItem);
+        }
+
+        function targetedSpin(targetItem) {
+            var spinFrame = document.getElementById('spinFrame');
+            var crate = spinFrame.children;
+
             var audio = new Audio('https://raw.githubusercontent.com/Cryption/rblx.fun/master/tick.wav');
             var prize = new Audio('https://github.com/Cryption/rblx.fun/blob/master/prize.mp3?raw=true');
 
@@ -489,8 +514,6 @@
                     break;
                 }
             }
-
-            console.log("New Test Spin!\nWinning Number: " + winningNumber + "\nPrize: " + targetItem);
 
             var targetX = (spinFrame.clientWidth / 2) - (crate[targetIndex].offsetLeft + (Math.random() * crate[targetIndex].clientWidth));
             var x = 0;
@@ -541,7 +564,7 @@
 
                         var itemValue = vegan == "Free" ? 0 : parseInt(vegan.replace(/,/g, ''));
 
-                        calculatedPrice += Math.ceil((itemValue) * (items[j].tickets / 100000.0));
+                        calculatedPrice += ((itemValue) * (items[j].tickets / 100000.0));
                         hasItem = true;
                     }
                 }
@@ -572,8 +595,8 @@
                 var itemCard = htmlToElement(atob(itemTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', 'Loading...', '', ''));
                 (function (itemCard) {
                     getItem(item.id, function (listing) {
-                        itemCard.innerHTML = htmlToElement(atob(itemTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(listing.price), '', overlays[listing.overlay])).innerHTML;
-                        recalculateCratePrice();
+                        itemCard.innerHTML = htmlToElement(atob(itemTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(item.price), '', overlays[listing.overlay])).innerHTML;
+                        //recalculateCratePrice();
                     });
                 })(itemCard);
                 itemCard.item = item;
@@ -586,7 +609,7 @@
                 var itemCard = htmlToElement(atob(itemTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', 'Loading...', '', ''));
                 (function (itemCard, winningNumbers, item) {
                     getItem(item.id, function (listing) {
-                        itemCard.innerHTML = htmlToElement(atob(itemTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(listing.price), '<span class="winning-numbers" ' + (document.getElementById('winningNumbersCheckbox').checked ? '' : 'style="display: none"') + '>' + winningNumbers + ' - ' + (winningNumbers + item.tickets) + '</span>', overlays[listing.overlay])).innerHTML;
+                        itemCard.innerHTML = htmlToElement(atob(itemTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(item.price), '<span class="winning-numbers" ' + (document.getElementById('winningNumbersCheckbox').checked ? '' : 'style="display: none"') + '>' + winningNumbers + ' - ' + (winningNumbers + item.tickets) + '</span>', overlays[listing.overlay])).innerHTML;
                     });
                 })(itemCard, winningNumbers, item);
                 winningNumbers += item.tickets;
@@ -599,29 +622,62 @@
             $('#open-crate').modal('open');
         }
 
-        function addInventoryItem(id) {
-            var itemCard = htmlToElement(atob(inveTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', 'Loading...', '', ''));
+        function addInventoryItem(id, price) {
+            var itemCard = htmlToElement(atob(inveTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', getValue(price), '', ''));
             (function (itemCard) {
                 getItem(id, function (listing) {
-                    itemCard.innerHTML = htmlToElement(atob(inveTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(listing.price), '', overlays[listing.overlay])).innerHTML;
+                    itemCard.innerHTML = htmlToElement(atob(inveTemplate).format(removeTags(listing.img), removeTags(listing.name), getValue(price), '', overlays[listing.overlay])).innerHTML;
                     itemCard.item = listing;
                 });
             })(itemCard);
             document.getElementById('inventoryDiv').appendChild(itemCard);
         }
-
+        
         function convertToRobux(btn) {
             var item = btn.parentElement.parentElement.parentElement;
-            robuxAmount += item.item.price;
-            $(item).hide(250);
+
+            $.ajax({
+                type: "POST",
+                url: "//api.rblx.fun/Default.aspx/ConvertToRobux",
+                data: JSON.stringify({ token: localStorage.token, id: item.item.id }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (msg) {
+                    var response = JSON.parse(msg.d);
+                    if (typeof (response["error"]) != 'undefined') {
+                        toastr.error(response["error"]);
+                    } else {
+                        toastr.success(response["success"]);
+
+                        robuxAmount += item.item.price;
+                        $(item).hide(250);
+                    }
+                }
+            });
         }
 
         function convertAllToRobux() {
             userInventory = [];
             var inv = document.getElementById('inventoryDiv').children;
             for (var i = 0; i < inv.length; i++) {
-                robuxAmount += inv[i].item.price;
-                $(inv[i]).hide(250);
+                $.ajax({
+                    type: "POST",
+                    url: "//api.rblx.fun/Default.aspx/ConvertToRobux",
+                    data: JSON.stringify({ token: localStorage.token, id: inv[i].item.id }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (msg) {
+                        var response = JSON.parse(msg.d);
+                        if (typeof (response["error"]) != 'undefined') {
+                            toastr.error(response["error"]);
+                        } else {
+                            toastr.success(response["success"]);
+
+                            robuxAmount += inv[i].item.price;
+                            $(inv[i]).hide(250);
+                        }
+                    }
+                });
             }
         }
 
@@ -639,7 +695,7 @@
                 sum += parseFloat($(n).val(), 10);
                 smallestOdd = Math.min(smallestOdd, parseFloat($(n).val(), 10));
                 var val = n.parentElement.parentElement.parentElement.children[1].children[1].innerText.replace(/,/g, '');
-                price += Math.ceil((val == "Free" ? 0 : parseFloat(val)) * (parseFloat($(n).val(), 10) / 100.0));
+                price += ((val == "Free" ? 0 : parseFloat(val)) * (parseFloat($(n).val(), 10) / 100.0));
             });
 
             price = Math.ceil(price * 1.15);
@@ -654,9 +710,11 @@
 
             var crateItems = document.getElementById('creatorDiv').children;
             for (var i = 0; i < crateItems.length; i++) {
+                var val = $(crateItems[i]).find('.align-price').text().trim().replace(/,/g, '')
                 crate.items.push({
                     id: crateItems[i].id,
-                    tickets: Math.round(parseFloat($(crateItems[i]).find('#odds').val()) / 0.001)
+                    tickets: Math.round(parseFloat($(crateItems[i]).find('#odds').val()) / 0.001),
+                    price: (val == "Free" ? 0 : parseFloat(val))
                     });
             }
 
@@ -668,11 +726,58 @@
                 toastr.error("The odds for any item cannot be less than 0.001!");
             } else {
                 console.log("New Crate!\nJSON: " + JSON.stringify(crate) + "\n\nBase64: " + btoa(JSON.stringify(crate)));
-                toastr.success("Crate data logged to console");
 
-                $('#crate-creator').modal('close');
-                displayCard(crate.items, crate.img, crate.title, crate.price, crate.preview);
+                $.ajax({
+                    type: "POST",
+                    url: "//api.rblx.fun/Default.aspx/CreateCase",
+                    data: JSON.stringify({ token: localStorage.token, title: title, icon: icon, preview: preview, items: items }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (msg) {
+                        var response = JSON.parse(msg.d);
+                        if (typeof (response["error"]) != 'undefined') {
+                            toastr.error(response["error"]);
+                        } else {
+                            toastr.success("Crate created!");
+
+                            var newurl = window.location.protocol + '//rblx.fun/?crate=' + response.success;
+                            window.history.pushState({ path: newurl }, '', newurl);
+
+                            $('#crate-creator').modal('close');
+                            displayCard(crate.items, crate.img, crate.title, crate.price, crate.preview);
+                        }
+                    }
+                });
             }
+        }
+
+        function getCrates(page) {
+            $.ajax({
+                type: "POST",
+                url: "//api.rblx.fun/Default.aspx/GetCases",
+                data: JSON.stringify({ page: page }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (msg) {
+                    var response = JSON.parse(msg.d);
+                    if (typeof (response["error"]) != 'undefined') {
+                        toastr.error(response["error"]);
+                    } else {
+                        for (var i = 0; i < response.length; i++) {
+                            var crate = response[i];
+
+                            var cratePrice = 0;
+                            for (var j = 0; j < crate.items.length; j++) {
+                                var item = crate.items[j];
+                                cratePrice += item.price * (item.tickets / 100000);
+                            }
+                            cratePrice = Math.ceil(cratePrice * 1.15);
+
+                            displayCard(crate.items, crate.img, crate.title, cratePrice, crate.preview);
+                        }
+                    }
+                }
+            });
         }
 
         function setItemOdds(btn) {
@@ -682,7 +787,7 @@
             $("[id='odds']").each(function (i, n) {
                 sum += parseFloat($(n).val(), 10);
                 var val = n.parentElement.parentElement.parentElement.children[1].children[1].innerText.replace(/,/g, '');
-                price += Math.ceil((val == "Free" ? 0 : parseFloat(val)) * (parseFloat($(n).val(), 10) / 100.0));
+                price += ((val == "Free" ? 0 : parseFloat(val)) * (parseFloat($(n).val(), 10) / 100.0));
             });
 
             price = Math.ceil(price * 1.15);
@@ -769,7 +874,7 @@
             $('.modal').modal();
             $('ul.tabs').tabs();
 
-            var crates = [
+            /*var crates = [
                 'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9NDE0NTI2OTgiLCJ0aXRsZSI6InRoZSBmaXJzdCBjcmF0ZSIsInByaWNlIjoxMTQ4LCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTQ1MTIyMTMyOSIsIml0ZW1zIjpbeyJpZCI6IjM3NjUyNDQ4NyIsInRpY2tldHMiOjIwMDAwfSx7ImlkIjoiMzc2NTI2ODg4IiwidGlja2V0cyI6MjAwMDB9LHsiaWQiOiI0NTEyMjEzMjkiLCJ0aWNrZXRzIjo0MDAwMH0seyJpZCI6IjYzNjkwMDA4IiwidGlja2V0cyI6MTk5ODl9LHsiaWQiOiI0ODU0NTgwNiIsInRpY2tldHMiOjEwfV19',
                 'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9MTM4MjE5ODIzIiwidGl0bGUiOiJleiBwcm9maXQiLCJwcmljZSI6MTYzLCJwcmV2aWV3IjoiaHR0cHM6Ly93d3cucm9ibG94LmNvbS9UaHVtYnMvQXNzZXQuYXNoeD93aWR0aD00MjAmaGVpZ2h0PTQyMCZhc3NldElkPTM3NjUyNjY3MyIsIml0ZW1zIjpbeyJpZCI6IjM3NjUyNjY3MyIsInRpY2tldHMiOjMzMDAwfSx7ImlkIjoiMjE1NzE5NTk4IiwidGlja2V0cyI6MTIwMDB9LHsiaWQiOiIyMDY0MjAwOCIsInRpY2tldHMiOjE1MDAwfSx7ImlkIjoiMTA2NjkwMDQ1IiwidGlja2V0cyI6MTAwMDB9LHsiaWQiOiIzNzY1NDg3MzgiLCJ0aWNrZXRzIjozMDAwMH1dfQ==',
                 'eyJpbWciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9NjMyMzUyMTAiLCJ0aXRsZSI6ImV6IGRvbWludXMiLCJwcmljZSI6MzE2ODUsInByZXZpZXciOiJodHRwczovL3d3dy5yb2Jsb3guY29tL1RodW1icy9Bc3NldC5hc2h4P3dpZHRoPTQyMCZoZWlnaHQ9NDIwJmFzc2V0SWQ9NTI3MzY1ODUyIiwiaXRlbXMiOlt7ImlkIjoiNTI3MzY1ODUyIiwidGlja2V0cyI6MjUwMDB9LHsiaWQiOiIxNjIzNzI4NDAiLCJ0aWNrZXRzIjozMDAwMH0seyJpZCI6IjEzNzQ1NTQ4IiwidGlja2V0cyI6NTAwMH0seyJpZCI6IjM3NjU0ODczOCIsInRpY2tldHMiOjUwMDB9LHsiaWQiOiIxNjYzMDE0NyIsInRpY2tldHMiOjUwMDB9LHsiaWQiOiIzNzY1MjY4ODgiLCJ0aWNrZXRzIjo1MDAwfSx7ImlkIjoiMzc2NTI0NDg3IiwidGlja2V0cyI6NTAwMH0seyJpZCI6IjI5OTUyODEwIiwidGlja2V0cyI6NTAwMH0seyJpZCI6IjQ1MTIyMTMyOSIsInRpY2tldHMiOjUwMDB9LHsiaWQiOiIxNzg3NzM0MCIsInRpY2tldHMiOjUwMDB9LHsiaWQiOiIxMzQ3NjkxNyIsInRpY2tldHMiOjUwMDB9XX0=',
@@ -793,7 +898,9 @@
             for (var i = 0; i < crates.length; i++) {
                 var c = JSON.parse(atob(crates[i]));
                 displayCard(c.items, c.img, c.title, c.price, c.preview);
-            }
+            }*/
+
+            getCrates(0);
             
             $('#winningNumbersCheckbox').on('change', function () {
                 var c = this.checked;
@@ -857,7 +964,7 @@
             $(".button-collapse").sideNav();
 
             var beep = new Audio('https://raw.githubusercontent.com/Cryption/rblx.fun/master/beep.wav');
-            setInterval(recalculateCratePrice, 150);
+            //setInterval(recalculateCratePrice, 150);
             setInterval(function () {
                 document.getElementById('nav-robux-amount').innerHTML = lastRobux.toLocaleString();
                 if (lastRobux != robuxAmount) {
@@ -885,20 +992,86 @@
         });
 
         function signin(user, pass) {
-            $("[href='#signin']").hide();
-            $(".user-info").show(250);
-            $("#nav-username").text(user);
-            $("#signin").modal('close');
+            $.ajax({
+                type: "POST",
+                url: "//api.rblx.fun/Default.aspx/Login",
+                data: JSON.stringify({ user: user, pass: pass }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (msg) {
+                    var response = JSON.parse(msg.d);
+                    if (typeof (response["error"]) != 'undefined') {
+                        toastr.error(response["error"]);
+                    } else {
+                        localStorage.setItem('token', response.token);
 
-            for (var i = 0; i < userInventory.length; i++) {
-                addInventoryItem(userInventory[i]);
-            }
+                        $("[href='#signin']").hide();
+                        $(".user-info").show(250);
+                        $("#nav-username").text(response.user);
+                        $("#signin").modal('close');
 
-            signedIn = true;
+                        robuxAmount = response.balance;
+                        lastRobux = response.balance;
+
+                        userInventory = response.inventory;
+
+                        for (var i = 0; i < userInventory.length; i++) {
+                            addInventoryItem(userInventory[i].id, userInventory[i].price);
+                        }
+
+                        signedIn = true;
+                    }
+                }
+            });
         }
 
-        function signup(user, pass) {
-            signin(user, pass);
+        function signup(user, pass, secondPass) {
+            if (pass != secondPass) {
+                toastr.error("Passwords must match!");
+                return;
+            }
+
+            if (!document.getElementById('over18').checked) {
+                toastr.error("You must be over 18 to play on this site!");
+                return;
+            }
+
+            if (!document.getElementById('tos').checked) {
+                toastr.error("You agree to the terms of service play on this site!");
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "//api.rblx.fun/Default.aspx/Register",
+                data: JSON.stringify({ user: user, pass: pass }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (msg) {
+                    var response = JSON.parse(msg.d);
+                    if (typeof (response["error"]) != 'undefined') {
+                        toastr.error(response["error"]);
+                    } else {
+                        localStorage.setItem('token', response.token);
+
+                        $("[href='#signin']").hide();
+                        $(".user-info").show(250);
+                        $("#nav-username").text(response.user);
+                        $("#signin").modal('close');
+
+                        robuxAmount = response.balance;
+                        lastRobux = response.balance;
+
+                        userInventory = response.inventory;
+
+                        for (var i = 0; i < userInventory.length; i++) {
+                            addInventoryItem(userInventory[i].id, userInventory[i].price);
+                        }
+
+                        signedIn = true;
+                    }
+                }
+            });
         }
     </script>
 </head>
@@ -1012,7 +1185,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <a class="modal-action modal-close btn waves-effect waves-light orange" onclick="signup(document.getElementById('signup_user').value, document.getElementById('signup_pass').value);">Sign Up</a>
+                <a class="modal-action modal-close btn waves-effect waves-light orange" onclick="signup(document.getElementById('signup_user').value, document.getElementById('signup_pass').value, document.getElementById('signup_confirmpass').value);">Sign Up</a>
             </div>
         </div>
     </div>
