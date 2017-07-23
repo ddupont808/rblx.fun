@@ -1293,22 +1293,22 @@
                     if (typeof (response["error"]) != 'undefined') {
                         toastr.error(response["error"]);
                     } else {
+                        var table = new google.visualization.Table(document.getElementById('stats'));
+
                         for (var i = 0; i < response.length; i++) {
                             var row = response[i];
                             data.addRows([
                                 [row.partnerCode, row.users, row.players, fm(row.totalBalance), fm(row.totalSpent), fm(row.totalLost), fm(row.totalDeposited)]
                             ]);
                         }
+
+                        table.draw(data, { showRowNumber: true, width: '100%', height: '100%' });
                     }
                 },
                 error: function () {
                     toastr.error("An error occured while processing this action, please try again later");
                 }
             });
-
-            var table = new google.visualization.Table(document.getElementById('stats'));
-
-            table.draw(data, { showRowNumber: true, width: '100%', height: '100%' });
         }
     </script>
 </head>
