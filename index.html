@@ -744,7 +744,7 @@
                 $.ajax({
                     type: "POST",
                     url: "//api.rblx.fun/Default.aspx/CreateCase",
-                    data: JSON.stringify({ token: localStorage.token, title: crate.title, icon: crate.icon, preview: crate.preview, items: crate.items }),
+                    data: JSON.stringify({ token: localStorage.token, title: crate.title, icon: crate.img, preview: crate.preview, items: JSON.stringify(crate.items) }),
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (msg) {
