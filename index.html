@@ -647,12 +647,12 @@
             for (var i = 0; i < crateItems.length; i++) {
                 var item = crateItems[i];
                 var itemCard = htmlToElement(atob(itemTemplate).format('https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/loading.png', 'Loading', 'Loading...', '', ''));
-                (function (itemCard) {
+                (function (itemCard, item) {
                     getItem(item.id, function (listing) {
                         itemCard.innerHTML = htmlToElement(atob(itemTemplate).format(thumbnailEndPoint.format(item.id), removeTags(listing.name), getValue(item.price), '', overlays[listing.overlay])).innerHTML;
                         //recalculateCratePrice();
                     });
-                })(itemCard);
+                })(itemCard, item);
                 itemCard.item = item;
                 document.getElementById('spinFrame').appendChild(itemCard);
             }
