@@ -263,6 +263,11 @@
                     } else {
                         callback(JSON.parse(msg.d));
                     }
+                },
+                error: function () {
+                    $.get('//crossorigin.me/' + url, function (data) {
+                        callback(data);
+                    });
                 }
             });
         }
@@ -472,6 +477,9 @@
                             toastr.info("A new item has been added to your inventory!");
                         }, 10000);
                     }
+                },
+                error: function () {
+                    toastr.error("An error occured while processing this action, please try again later");
                 }
             });
         }
@@ -652,6 +660,9 @@
                         robuxAmount += item.item.price;
                         $(item).hide(250);
                     }
+                },
+                error: function () {
+                    toastr.error("An error occured while processing this action, please try again later");
                 }
             });
         }
@@ -676,6 +687,9 @@
                             robuxAmount += inv[i].item.price;
                             $(inv[i]).hide(250);
                         }
+                    },
+                    error: function () {
+                        toastr.error("An error occured while processing this action, please try again later");
                     }
                 });
             }
@@ -746,6 +760,9 @@
                             $('#crate-creator').modal('close');
                             displayCard(crate.items, crate.img, crate.title, crate.price, crate.preview);
                         }
+                    },
+                    error: function () {
+                        toastr.error("An error occured while processing this action, please try again later");
                     }
                 });
             }
@@ -776,6 +793,9 @@
                             displayCard(crate.items, crate.img, crate.title, cratePrice, crate.preview);
                         }
                     }
+                },
+                error: function () {
+                    toastr.error("An error occured while processing this action, please try again later");
                 }
             });
         }
@@ -1021,6 +1041,9 @@
 
                         signedIn = true;
                     }
+                },
+                error: function () {
+                    toastr.error("An error occured while processing this action, please try again later");
                 }
             });
         }
@@ -1070,6 +1093,9 @@
 
                         signedIn = true;
                     }
+                },
+                error: function () {
+                    toastr.error("An error occured while processing this action, please try again later");
                 }
             });
         }
@@ -1142,7 +1168,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <a class="modal-action modal-close btn waves-effect waves-light orange" onclick="signin(document.getElementById('signin_user').value, document.getElementById('signin_pass').value);">Sign In</a>
+                <a class="btn waves-effect waves-light orange" onclick="signin(document.getElementById('signin_user').value, document.getElementById('signin_pass').value);">Sign In</a>
             </div>
         </div>
         <div id="sign-up">
@@ -1185,7 +1211,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <a class="modal-action modal-close btn waves-effect waves-light orange" onclick="signup(document.getElementById('signup_user').value, document.getElementById('signup_pass').value, document.getElementById('signup_confirmpass').value);">Sign Up</a>
+                <a class="btn waves-effect waves-light orange" onclick="signup(document.getElementById('signup_user').value, document.getElementById('signup_pass').value, document.getElementById('signup_confirmpass').value);">Sign Up</a>
             </div>
         </div>
     </div>
