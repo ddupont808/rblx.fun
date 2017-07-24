@@ -1177,6 +1177,23 @@
             document.getElementById('inventoryDiv').innerHTML = "";
         }
 
+        function withdraw(value) {
+            $.ajax({
+                type: "POST",
+                url: "//api.rblx.fun/Default.aspx/RequestWithdrawal",
+                data: JSON.stringify({ token: localStorage.token, amount: value }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (msg) {
+                    if (msg.d == "error") {
+                        toastr.error(response["error"]);
+                    } else {
+                        toastr.info(response["text"]);
+                    }
+                }
+            });
+        }
+
         function refreshSession() {
             if (typeof (localStorage.token) == 'undefined')
                 return;
@@ -1376,6 +1393,7 @@
                 <ul class="right hide-on-med-and-down">
                     <li><a href="#crate-creator" class="modal-trigger">Crate Creator</a></li>
                     <li><a href="#deposit" class="modal-trigger">Deposit</a></li>
+                    <li><a href="#withdraw" class="modal-trigger">Withdraw</a></li>
                     <li><a href="javascript:openInventory();">Inventory</a></li>
                     <a href="#signin" class="btn waves-effect waves-light orange modal-trigger">Sign In</a>
                     <li class="user-info" style="display: none;">
@@ -1390,6 +1408,7 @@
                 <ul id="nav-mobile" class="side-nav" style="transform: translateX(-100%);">
                     <li><a href="#crate-creator" class="modal-trigger">Crate Creator</a></li>
                     <li><a href="#deposit" class="modal-trigger">Deposit</a></li>
+                    <li><a href="#withdraw" class="modal-trigger">Withdraw</a></li>
                     <li><a href="javascript:openInventory();">Inventory</a></li>
                     <a href="#signin" class="btn waves-effect waves-light orange modal-trigger">Sign In</a>
                 </ul>
@@ -1635,6 +1654,31 @@
             </div>
             <div class="row">
                 <div class="user-items" id="inventoryDiv">
+
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
+        </div>
+    </div>
+
+    <div id="withdraw" class="modal">
+        <div class="modal-content">
+            <div class="row">
+                <div class="col s12 center">
+                    <h4>Transaction History</h4>
+                    <p>Here you can move your winnings to your ROBLOX account</p>
+                </div>
+                <div class="col s4 right">
+                    <span class="waves-effect waves-green btn right green" onclick="withdraw(robuxAmount);">
+                        Withdraw All 
+                        <img style="max-height: 25px; transform: translateY(6px);" src="https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/funds.png" />
+                    </span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="user-items" id="promoDiv">
 
                 </div>
             </div>
