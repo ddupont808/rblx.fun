@@ -505,7 +505,11 @@
                 var spinFrame = document.getElementById('spinFrame');
                 var crate = spinFrame.children;
 
-                var winningNumber = Math.max(37000, Math.min(parseInt(Math.random() * spinFrame.winningNumbers), 100000));
+                var winningNumber = parseInt(Math.random() * spinFrame.winningNumbers);
+
+                var min = 37890;
+                while (winningNumber < min)
+                    winningNumber = parseInt(Math.random() * spinFrame.winningNumbers);
 
                 var winningNumbers = 0;
                 var items = spinFrame.items;
