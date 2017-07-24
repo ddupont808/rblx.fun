@@ -216,8 +216,8 @@
         var itemCache = [];
         var userInventory = [];
 
-        var robuxAmount = 2500;
-        var lastRobux = 2500;
+        var robuxAmount = 0;
+        var lastRobux = 0;
 
         var signedIn = false;
 
@@ -1017,6 +1017,10 @@
                 $("#cratePreviewName").html($(this).val());
             });
 
+            $("#funds").on("keyup", function (e) {
+                $("#cashAmount").html($(this).val().toFixed(2));
+            })
+
             $("#catalogSearch").on("keyup", function (e) {
                 var query = $(this).val();
                 if (typeof (searchTimeout) != 'undefined')
@@ -1536,7 +1540,7 @@
             <div class="row">
                 <a class="modal-action modal-close btn waves-effect waves-light orange" disabled="disabled">Deposit Items</a>
                 <a class="modal-action modal-close btn waves-effect waves-light orange" disabled="disabled">Pay With <img style="max-height: 20px; transform:translateY(5px);" src="//rbx.place/img/funds.png" /></a>
-                <a class="btn waves-effect waves-light green" href="javascript:depositCash();">Pay With Cash</a>
+                <a class="btn waves-effect waves-light green" href="javascript:depositCash();">Pay With Cash ($<span id="cashAmount">0.00</span>)</a>
             </div>
         </div>
         <div class="modal-footer">
