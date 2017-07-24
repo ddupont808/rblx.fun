@@ -453,6 +453,34 @@
             console.log("Lowest winning number: " + lowestWinningNumber + "\nHighest winning number: " + highestWinningNumber + "\nAverage Profit Per User: " + ((((plays * price) - userBalance) / 80) / plays));
         }
 
+        function depositCash() {
+            if (!signedIn) {
+                toastr.error("You must be signed in to deposit funds!");
+                return;
+            }
+
+            var funds = $('#funds').val();
+
+            $.ajax({
+                type: "POST",
+                url: "//api.rblx.fun/Default.aspx/GetCheckoutCash",
+                data: JSON.stringify({ token: localStorage.token, robuxAmount: funds }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (msg) {
+                    var response = JSON.parse(msg.d);
+                    if (typeof (response["error"]) != 'undefined') {
+                        toastr.error(response["error"]);
+                    } else {
+                        document.location.href = msg["success"];
+                    }
+                },
+                error: function () {
+                    toastr.error("An error occured while processing this action, please try again later");
+                }
+            });
+        }
+
         function openCrate() {
             if (!signedIn) {
                 toastr.error("You must be signed in to open crates!");
@@ -1454,7 +1482,7 @@
             <div class="row">
                 <a class="modal-action modal-close btn waves-effect waves-light orange" disabled="disabled">Deposit Items</a>
                 <a class="modal-action modal-close btn waves-effect waves-light orange" disabled="disabled">Pay With <img style="max-height: 20px; transform:translateY(5px);" src="//rbx.place/img/funds.png" /></a>
-                <a class="modal-action modal-close btn waves-effect waves-light green">Pay With Cash</a>
+                <a class="modal-action modal-close btn waves-effect waves-light green" href="javascript:depositCash();">Pay With Cash</a>
             </div>
         </div>
         <div class="modal-footer">
