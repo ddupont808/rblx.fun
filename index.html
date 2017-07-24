@@ -1384,7 +1384,7 @@
                         for (var i = 0; i < response.length; i++) {
                             var row = response[i];
                             data.addRows([
-                                [row.partnerCode, row.users, row.players, fm(row.totalBalance), fm(row.totalSpent), fm(row.totalLost), fm(row.totalWon), fm(fm.totalLost - fm.totalWon), fm(row.totalDeposited)]
+                                [row.partnerCode, row.users, row.players, fm(row.totalBalance), fm(row.totalSpent), fm(row.totalLost), fm(row.totalWon), fm(row.totalLost - row.totalWon), fm(row.totalDeposited)]
                             ]);
                         }
 
