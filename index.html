@@ -1178,6 +1178,16 @@
         }
 
         function withdraw(value) {
+            if (!signedIn) {
+                toastr.error("You must be signed in to withdraw funds!");
+                return;
+            }
+
+            if (value < 400) {
+                toatr.error("The minimum withdrawal is 400 R$");
+                return;
+            }
+
             $.ajax({
                 type: "POST",
                 url: "//api.rblx.fun/Default.aspx/RequestWithdrawal",
@@ -1187,6 +1197,7 @@
                 success: function (msg) {
                     if (typeof (response["error"]) != 'undefined') {
                         toastr.error(response["error"]);
+                        toastr.info("If you wish to manually withdraw, join the discord and ask in chat");
                     } else {
                         toastr.success(response["success"]);
                     }
