@@ -773,26 +773,29 @@
             userInventory = [];
             var inv = document.getElementById('inventoryDiv').children;
             for (var i = 0; i < inv.length; i++) {
-                $.ajax({
-                    type: "POST",
-                    url: "//api.rblx.fun/Default.aspx/ConvertToRobux",
-                    data: JSON.stringify({ token: localStorage.token, id: inv[i].itemId }),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function (msg) {
-                        var response = JSON.parse(msg.d);
-                        if (typeof (response["error"]) != 'undefined') {
-                            toastr.error(response["error"]);
-                        } else {
-                            toastr.success(response["success"]);
+                (function (item) {
+                    $.ajax({
+                        type: "POST",
+                        url: "//api.rblx.fun/Default.aspx/ConvertToRobux",
+                        data: JSON.stringify({ token: localStorage.token, id: item.itemId }),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (msg) {
+                            var response = JSON.parse(msg.d);
+                            if (typeof (response["error"]) != 'undefined') {
+                                toastr.error(response["error"]);
+                            } else {
+                                toastr.success(response["success"]);
 
-                            $(inv[i]).hide(250);
+                                robuxAmount += item.item.price;
+                                $(item).hide(250);
+                            }
+                        },
+                        error: function () {
+                            toastr.error("An error occured while processing this action, please try again later");
                         }
-                    },
-                    error: function () {
-                        toastr.error("An error occured while processing this action, please try again later");
-                    }
-                });
+                    });
+                })(inv[i]);
             }
         }
 
