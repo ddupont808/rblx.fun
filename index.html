@@ -1018,7 +1018,7 @@
             });
 
             $("#funds").on("keyup", function (e) {
-                $("#cashAmount").html($(this).val().toFixed(2));
+                $("#cashAmount").html((parseFloat($("#funds").val()) / 80.0).toFixed(2));
             })
 
             $("#catalogSearch").on("keyup", function (e) {
