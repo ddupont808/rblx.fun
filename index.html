@@ -1104,6 +1104,10 @@
                 displayCrateById(getParameterByName('crate'));
             }
 
+            if (getParameterByName('paid') != '') {
+                toastr.info("Payment received, please allow up to 2-4 minutes before you receive your funds");
+            }
+
             refreshSession();
             setInterval(refreshSession, 15000);
         });
