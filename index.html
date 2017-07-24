@@ -464,7 +464,7 @@
 
             if (backendless) {
                 toastr.success("Transaction complete!");
-                robuxAmount += funds;
+                robuxAmount += parseInt(funds);
             } else {
                 $.ajax({
                     type: "POST",
