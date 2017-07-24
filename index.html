@@ -776,7 +776,7 @@
                 $.ajax({
                     type: "POST",
                     url: "//api.rblx.fun/Default.aspx/ConvertToRobux",
-                    data: JSON.stringify({ token: localStorage.token, id: inv[i].item.id }),
+                    data: JSON.stringify({ token: localStorage.token, id: inv[i].itemId }),
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (msg) {
