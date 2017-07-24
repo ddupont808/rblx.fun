@@ -736,6 +736,7 @@
             (function (itemCard) {
                 getItem(id, function (listing) {
                     itemCard.innerHTML = htmlToElement(atob(inveTemplate).format(thumbnailEndPoint.format(id), removeTags(listing.name), getValue(price), '', overlays[listing.overlay])).innerHTML;
+                    listing.price = price;
                     itemCard.item = listing;
                 });
             })(itemCard);
