@@ -569,12 +569,12 @@
 
             var targetX = (spinFrame.clientWidth / 2) - (crate[targetIndex].offsetLeft + (Math.random() * crate[targetIndex].clientWidth));
             var x = 0;
-            var maxSpeed = 70;
+            var maxSpeed = 80;
             if (typeof (currentSpin) != 'undefined')
                 clearInterval(currentSpin);
 
             currentSpin = setInterval(function () {
-                if (parseInt((x + (crate[targetIndex].clientWidth / 2)) / crate[targetIndex].clientWidth) < parseInt((x + Math.min(maxSpeed, (-targetX - x) * .006) + (crate[targetIndex].clientWidth / 2)) / crate[targetIndex].clientWidth)) {
+                if (parseInt((x + (crate[targetIndex].clientWidth / 2)) / crate[targetIndex].clientWidth) < parseInt((x + Math.min(maxSpeed, (-targetX - x) * .01) + (crate[targetIndex].clientWidth / 2)) / crate[targetIndex].clientWidth)) {
                     audio.play();
                 }
 
@@ -585,7 +585,7 @@
                     clearInterval(currentSpin);
                 }
 
-                x += Math.min(maxSpeed, (-targetX - x) * .006);
+                x += Math.min(maxSpeed, (-targetX - x) * .01);
 
                 spinFrame.style.webkitTransform = "translateX(" + -x + "px)";
                 spinFrame.style.transform = "translateX(" + -x + "px)";
@@ -694,7 +694,7 @@
             document.getElementById('spinFrame').innerHTML = "";
             document.getElementById('caseInventory').innerHTML = "";
             var crateItems = [];
-            for (var i = 0; i < Math.max(items.length * 50, 250); i++) {
+            for (var i = 0; i < Math.max(items.length * 50, 100); i++) {
                 crateItems.push(items[i % items.length]);
             }
             crateItems = shuffle(crateItems);
