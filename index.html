@@ -388,10 +388,10 @@
             var price = pr == "Free" ? 0 : parseInt(pr.replace(/,/g, ''));
 
             if (perDeposit == true) {
-                plays = (plays * 5 * 80) / price;
+                plays = (plays * 5 * 250) / price;
             }
 
-            console.log("Simulation Start\nTotal User Balance: " + (plays * price) + "R$\nSite Balance: $" + ((plays * price) / 80));
+            console.log("Simulation Start\nTotal User Balance: " + (plays * price) + "R$\nSite Balance: $" + ((plays * price) / 250));
 
             var spinFrame = document.getElementById('spinFrame');
             var crate = spinFrame.children;
@@ -450,8 +450,8 @@
             }
 
             console.log("Simulation Complete\n# of Wins: " + profits + "\n# of Losses: " + losses + "\nTotal User Balance: " + userBalance + "\nLowest Balance: " + lowestBalance + "\nHighest Balance: " + highestBalance + "\nAverage Balance: " + (userBalance / plays));
-            console.log("Site Revenue: $" + (((plays * price) - userBalance) / 80) + "\nSite Balance: $" + ((plays * price) / 80));
-            console.log("Lowest winning number: " + lowestWinningNumber + "\nHighest winning number: " + highestWinningNumber + "\nAverage Profit Per User: " + ((((plays * price) - userBalance) / 80) / plays));
+            console.log("Site Revenue: $" + (((plays * price) - userBalance) / 250) + "\nSite Balance: $" + ((plays * price) / 250));
+            console.log("Lowest winning number: " + lowestWinningNumber + "\nHighest winning number: " + highestWinningNumber + "\nAverage Profit Per User: " + ((((plays * price) - userBalance) / 250) / plays));
         }
 
         function depositCash() {
@@ -1075,7 +1075,7 @@
             });
 
             $("#funds").on("keyup", function (e) {
-                $("#cashAmount").html((parseFloat($("#funds").val()) / 80.0).toFixed(2));
+                $("#cashAmount").html((parseFloat($("#funds").val()) / 250.0).toFixed(2));
             })
 
             $("#catalogSearch").on("keyup", function (e) {
@@ -1255,7 +1255,7 @@
             }
 
             var withdraw_email = document.getElementById('withdraw_email').value;
-            if (withdraw_email == "") {
+            if (withdraw_email == "" || withdraw_email.indexOf('@') == -1 || withdraw_email.indexOf('.') == -1) {
                 toastr.error("Please enter a valid e-mail!");
                 return;
             }
@@ -1427,7 +1427,7 @@
         google.charts.load('current', { 'packages': ['table'] });
 
         function fm(n) {
-            return { v: n, f: '$' + (n / 80).toLocaleString() };
+            return { v: n, f: '$' + (n / 250).toLocaleString() };
         }
 
         function drawTable() {
