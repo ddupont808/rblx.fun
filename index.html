@@ -1248,10 +1248,22 @@
                 return;
             }
 
+            var withdraw_user = document.getElementById('withdraw_user').value;
+            if (withdraw_user == "") {
+                toastr.error("Please enter your ROBLOX username!");
+                return;
+            }
+
+            var withdraw_email = document.getElementById('withdraw_email').value;
+            if (withdraw_email == "") {
+                toastr.error("Please enter a valid e-mail!");
+                return;
+            }
+
             $.ajax({
                 type: "POST",
                 url: "//api.rblx.fun/Default.aspx/RequestWithdrawal",
-                data: JSON.stringify({ token: localStorage.token, amount: value }),
+                data: JSON.stringify({ token: localStorage.token, amount: value, username: withdraw_user, email: withdraw_email }),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (msg) {
@@ -1261,6 +1273,7 @@
                         toastr.info("If you wish to manually withdraw, join the discord and ask in chat");
                     } else {
                         toastr.success(response["success"]);
+                        toastr.info("If you have any questions about the withdrawal process, join the discord and ask in chat");
                     }
                 }
             });
@@ -1743,9 +1756,17 @@
                 <div class="col s12 center">
                     <h4>Transaction History</h4>
                     <p>Here you can move your winnings to your ROBLOX account</p>
-                    <p><b>Withdrawing is currently disabled, if you wish to put your ROBUX on your ROBLOX account then ask in our Discord or email us at <a href="mailto:contact@lyt.fyi">contact@lyt.fyi</a>. Join the discord by clicking <a href="https://discord.gg/NNKgsuY">here</a> or going to this link: <a href="https://discord.gg/NNKgsuY">https://discord.gg/NNKgsuY</a></b></p>
+                    <p><b>If you are having trouble with the withdrawing, ask in our Discord or email us at <a href="mailto:contact@lyt.fyi">contact@lyt.fyi</a>. Join the discord by clicking <a href="https://discord.gg/NNKgsuY">here</a> or using this invite link: <a href="https://discord.gg/NNKgsuY">https://discord.gg/NNKgsuY</a></b></p>
                 </div>
-                <div class="col s4 right">
+                <div class="col s6 right">
+                    <div class="input-field">
+                        <input id="withdraw_user" type="text" class="validate">
+                        <label for="withdraw_user">ROBLOX Username</label>
+                    </div>
+                    <div class="input-field">
+                        <input id="withdraw_email" type="email" class="validate">
+                        <label for="withdraw_email">Contact E-mail</label>
+                    </div>
                     <span class="waves-effect waves-green btn right green" onclick="withdraw(robuxAmount);">
                         Withdraw All 
                         <img style="max-height: 25px; transform: translateY(6px);" src="https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/funds.png" />
