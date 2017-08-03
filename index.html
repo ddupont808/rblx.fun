@@ -198,6 +198,7 @@
         var itemTemplate = "PGRpdiBjbGFzcz0iY2FyZCBjcmF0ZS1pdGVtIj4KCTxkaXYgY2xhc3M9ImNhcmQtaW1hZ2UiIHN0eWxlPSJib3JkZXItYm90dG9tOiAxcHggc29saWQgcmdiYSgwLCAwLCAwLCAwLjEpIj4KCQk8aW1nIHNyYz0iezB9Ij4KCQl7NH0KCTwvZGl2PgoJPGRpdiBjbGFzcz0iY2FyZC1jb250ZW50IiBzdHlsZT0icGFkZGluZzogNHB4IDRweCA0cHggNHB4Ij4KCQk8cCBjbGFzcz0iaXRlbS1uYW1lIj57MX08L3A+CgkJPHAgY2xhc3M9ImdyZXktdGV4dCI+ezN9PC9wPgoJCTxkaXYgY2xhc3M9ImNvbCBzMTIiPgoJCQk8c3BhbiBjbGFzcz0iZ3JlZW4tdGV4dCBhbGlnbi1wcmljZSI+CgkJCQk8aW1nIHN0eWxlPSJtYXgtaGVpZ2h0OiAyMHB4OyIgc3JjPSIvL3JieC5wbGFjZS9pbWcvZnVuZHMucG5nIiAvPgoJCQkJezJ9CgkJCTwvc3Bhbj4KCQk8L2Rpdj4KCTwvZGl2Pgo8L2Rpdj4=";
         var inveTemplate = "PGRpdiBjbGFzcz0iY2FyZCBob3Jpem9udGFsIHVzZXItaXRlbSI+Cgk8ZGl2IGNsYXNzPSJjYXJkLWltYWdlIj4KCQk8aW1nIHNyYz0iezB9IiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgc3R5bGU9IndpZHRoOiAyMDBweCI+CgkJezR9Cgk8L2Rpdj4KCTxkaXYgY2xhc3M9ImNhcmQtc3RhY2tlZCI+CgkJPGRpdiBjbGFzcz0iY2FyZC1jb250ZW50IiBzdHlsZT0icGFkZGluZzogNHB4IDRweCA0cHggNHB4Ij4KCQkJPGg0PnsxfTwvaDQ+CgkJCTxwPjxzcGFuIGNsYXNzPSJncmV5LXRleHQiPlByaWNlOiA8L3NwYW4+CgkJCQk8c3BhbiBjbGFzcz0iZ3JlZW4tdGV4dCBhbGlnbi1wcmljZSI+CgkJCQkJPGltZyBzdHlsZT0ibWF4LWhlaWdodDogMjBweDsiIHNyYz0iLy9yYngucGxhY2UvaW1nL2Z1bmRzLnBuZyIgLz4KCQkJCQl7Mn0KCQkJCTwvc3Bhbj4KCQkJPC9wPgoJCTwvZGl2PgoJCTxkaXYgY2xhc3M9ImNhcmQtYWN0aW9uIj4KCQkJPHNwYW4gY2xhc3M9ImJ0biB3YXZlcy1lZmZlY3Qgd2F2ZXMtbGlnaHQgb3JhbmdlIiBvbmNsaWNrPSIiIGRpc2FibGVkPSJkaXNhYmxlZCI+V0lUSERSQVc8L3NwYW4+CgkJCTxzcGFuIGNsYXNzPSJidG4gd2F2ZXMtZWZmZWN0IHdhdmVzLWxpZ2h0IGdyZWVuIiBvbmNsaWNrPSJjb252ZXJ0VG9Sb2J1eCh0aGlzKTsiPkNPTlZFUlQgVE8gUiQ8L3NwYW4+CgkJPC9kaXY+Cgk8L2Rpdj4KPC9kaXY+";
         var creaTemplate = "PGRpdiBjbGFzcz0iY2FyZCBob3Jpem9udGFsIHVzZXItaXRlbSIgc3R5bGU9ImhlaWdodDogMjUwcHgiPgoJPGRpdiBjbGFzcz0iY2FyZC1pbWFnZSI+CgkJPGltZyBzcmM9InswfSIgd2lkdGg9IjI1MCIgaGVpZ2h0PSIyNTAiIHN0eWxlPSJ3aWR0aDogMjUwcHgiPgoJCXs0fQoJPC9kaXY+Cgk8ZGl2IGNsYXNzPSJjYXJkLXN0YWNrZWQiPgoJCTxkaXYgY2xhc3M9ImNhcmQtY29udGVudCIgc3R5bGU9InBhZGRpbmc6IDRweCA0cHggNHB4IDRweCI+CgkJCTxoND57MX08L2g0PgoJCQk8cD48c3BhbiBjbGFzcz0iZ3JleS10ZXh0Ij5QcmljZTogPC9zcGFuPgoJCQkJPHNwYW4gY2xhc3M9ImdyZWVuLXRleHQgYWxpZ24tcHJpY2UiPgoJCQkJCTxpbWcgc3R5bGU9Im1heC1oZWlnaHQ6IDIwcHg7IiBzcmM9Ii8vcmJ4LnBsYWNlL2ltZy9mdW5kcy5wbmciIC8+CgkJCQkJezJ9CgkJCQk8L3NwYW4+CgkJCTwvcD4KCQkJPGRpdiBjbGFzcz0icm93IG1vZGFsLWZvcm0tcm93Ij4KCQkJCTxkaXYgY2xhc3M9ImlucHV0LWZpZWxkIGNvbCBzMTIiPgoJCQkJCTxpbnB1dCBpZD0ib2RkcyIgdHlwZT0ibnVtYmVyIiBtaW49IjAiIG1heD0iMTAwIiBzdGVwPSIwLjAwMSIgb25jaGFuZ2U9InNldEl0ZW1PZGRzKHRoaXMpOyIgb25rZXl1cD0ic2V0SXRlbU9kZHModGhpcyk7IiB2YWx1ZT0wIGNsYXNzPSJ2YWxpZGF0ZSB2YWxpZCI+CgkJCQkJPGxhYmVsIGZvcj0ib2RkcyIgY2xhc3M9ImFjdGl2ZSI+T2RkczwvbGFiZWw+CgkJCQk8L2Rpdj4KCQkJPC9kaXY+CgkJPC9kaXY+CgkJPGRpdiBjbGFzcz0iY2FyZC1hY3Rpb24iPgoJCQk8c3BhbiBjbGFzcz0iYnRuIHdhdmVzLWVmZmVjdCB3YXZlcy1saWdodCByZWQiIG9uY2xpY2s9InJlbW92ZUNyYXRlSXRlbSh0aGlzKTsiPlJFTU9WRTwvc3Bhbj4KCQkJPHNwYW4gY2xhc3M9ImJ0biB3YXZlcy1lZmZlY3Qgd2F2ZXMtbGlnaHQgZ3JlZW4iIG9uY2xpY2s9InNldFByaW1hcnlJdGVtKHRoaXMpOyI+TUFLRSBQUklNQVJZPC9zcGFuPgoJCTwvZGl2PgoJPC9kaXY+CjwvZGl2Pg==";
+        var tranTemplate = "PGxpIGNsYXNzPSJjb2xsZWN0aW9uLWl0ZW0gYXZhdGFyIj4KICAgIDxzcGFuIGNsYXNzPSJ0aXRsZSI+ezB9IFJPQlVYIFdpdGhkcmF3YWw8L3NwYW4+CiAgICA8cD4KICAgICAgICB7MX0gPGJyPgogICAgICAgIHsyfQogICAgPC9wPgo8L2xpPg==";
 
         var itemEndPoint = 'https://api.roblox.com/Marketplace/ProductInfo?assetId={0}';
         var thumbnailEndPoint = 'https://www.roblox.com/Thumbs/Asset.ashx?width=420&height=420&assetId={0}';
@@ -786,6 +787,11 @@
             itemCard.itemId = id;
             document.getElementById('inventoryDiv').appendChild(itemCard);
         }
+
+        function addTransactionItem(value, id, state)
+        {
+            document.getElementById('promoDiv').appendChild(htmlToElement(atob(tranTemplate).format(value, state, id)));
+        }
         
         function convertToRobux(btn) {
             var item = btn.parentElement.parentElement.parentElement;
@@ -1244,7 +1250,7 @@
             }
 
             if (value < 1000) {
-                toatr.error("The minimum withdrawal is 1000 R$");
+                toastr.error("The minimum withdrawal is 1000 R$");
                 return;
             }
 
@@ -1316,6 +1322,12 @@
                             }
                         }
 
+                        document.getElementById('promoDiv').innerHTML = "";
+                        for (var i = 0; i < response.promos.length; i++) {
+                            var promo = response.promos[i];
+                            addTransactionItem(promo.value, promo.id, promo.state);
+                        }
+
                         signedIn = true;
                         checkAdmin();
                     }
@@ -1357,6 +1369,11 @@
 
                         for (var i = 0; i < userInventory.length; i++) {
                             addInventoryItem(userInventory[i].id, userInventory[i].price);
+                        }
+
+                        for (var i = 0; i < response.promos.length; i++) {
+                            var promo = response.promos[i];
+                            addTransactionItem(promo.value, promo.id, promo.state);
                         }
 
                         signedIn = true;
@@ -1774,9 +1791,9 @@
                 </div>
             </div>
             <div class="row">
-                <div class="user-items" id="promoDiv">
+                <ul class="collection" id="promoDiv">
 
-                </div>
+                </ul>
             </div>
         </div>
         <div class="modal-footer">
