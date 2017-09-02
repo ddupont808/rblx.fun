@@ -256,7 +256,7 @@
             return array;
         }
 
-        function proxy(url, callback) {
+        function proxy(url, callback, plain) {
             $.ajax({
                 type: "POST",
                 url: "//api.rblx.fun/Default.aspx/GetJson",
@@ -269,7 +269,7 @@
                             callback(data);
                         });
                     } else {
-                        callback(JSON.parse(msg.d));
+                        callback(plain ? msg.d : JSON.parse(msg.d));
                     }
                 },
                 error: function () {
@@ -389,10 +389,10 @@
             var price = pr == "Free" ? 0 : parseInt(pr.replace(/,/g, ''));
 
             if (perDeposit == true) {
-                plays = (plays * 5 * 200) / price;
+                plays = (plays * 5 * 150) / price;
             }
 
-            console.log("Simulation Start\nTotal User Balance: " + (plays * price) + "R$\nSite Balance: $" + ((plays * price) / 200));
+            console.log("Simulation Start\nTotal User Balance: " + (plays * price) + "R$\nSite Balance: $" + ((plays * price) / 150));
 
             var spinFrame = document.getElementById('spinFrame');
             var crate = spinFrame.children;
@@ -451,8 +451,8 @@
             }
 
             console.log("Simulation Complete\n# of Wins: " + profits + "\n# of Losses: " + losses + "\nTotal User Balance: " + userBalance + "\nLowest Balance: " + lowestBalance + "\nHighest Balance: " + highestBalance + "\nAverage Balance: " + (userBalance / plays));
-            console.log("Site Revenue: $" + (((plays * price) - userBalance) / 200) + "\nSite Balance: $" + ((plays * price) / 200));
-            console.log("Lowest winning number: " + lowestWinningNumber + "\nHighest winning number: " + highestWinningNumber + "\nAverage Profit Per User: " + ((((plays * price) - userBalance) / 200) / plays));
+            console.log("Site Revenue: $" + (((plays * price) - userBalance) / 150) + "\nSite Balance: $" + ((plays * price) / 150));
+            console.log("Lowest winning number: " + lowestWinningNumber + "\nHighest winning number: " + highestWinningNumber + "\nAverage Profit Per User: " + ((((plays * price) - userBalance) / 150) / plays));
         }
 
         function depositCash() {
@@ -1081,7 +1081,7 @@
             });
 
             $("#funds").on("keyup", function (e) {
-                $("#cashAmount").html((parseFloat($("#funds").val()) / 200.0).toFixed(2));
+                $("#cashAmount").html((parseFloat($("#funds").val()) / 150.0).toFixed(2));
             })
 
             $("#catalogSearch").on("keyup", function (e) {
@@ -1249,8 +1249,8 @@
                 return;
             }
 
-            if (value < 1000) {
-                toastr.error("The minimum withdrawal is 1000 R$");
+            if (value < 1) {
+                toastr.error("The minimum withdrawal is 1 R$");
                 return;
             }
 
@@ -1266,21 +1266,72 @@
                 return;
             }
 
-            $.ajax({
-                type: "POST",
-                url: "//api.rblx.fun/Default.aspx/RequestWithdrawal",
-                data: JSON.stringify({ token: localStorage.token, amount: value, username: withdraw_user, email: withdraw_email }),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (msg) {
-                    var response = JSON.parse(msg.d);
-                    if (typeof (response["error"]) != 'undefined') {
-                        toastr.error(response["error"]);
-                        toastr.info("If you wish to manually withdraw, join the discord and ask in chat");
-                    } else {
-                        toastr.success(response["success"]);
-                        toastr.info("If you have any questions about the withdrawal process, join the discord and ask in chat");
-                    }
+            proxy('http://api.roblox.com/users/get-by-username?username=' + withdraw_user, function (data) {
+                if (data["success"] == false) {
+                    toastr.error("Invalid ROBLOX username!");
+                } else {
+                    $.ajax({
+                        type: "POST",
+                        url: "//api.rblx.fun/Default.aspx/RequestWithdrawal",
+                        data: JSON.stringify({ token: localStorage.token, amount: value, username: withdraw_user, email: withdraw_email, id: "", groupId: "", precheck: true }),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (msg) {
+                            var response = JSON.parse(msg.d);
+                            if (typeof (response["error"]) != 'undefined') {
+                                toastr.error(response["error"]);
+                                toastr.info("If you wish to manually withdraw, join the discord and ask in chat");
+                            } else {
+                                var url = "https://www.roblox.com/Groups/Group.aspx?gid=" + response["group"];
+                                var usernameId = data["Id"];
+
+                                $('#groupHref').attr('href', url);
+                                $("#join-group").modal('open');
+
+                                window.open(url, '_blank');
+
+                                var intv = setInterval(function () {
+                                    if ($("#join-group").attr('class').indexOf('open') == -1) {
+                                        clearInterval(intv);
+                                    } else {
+                                        proxy('https://www.roblox.com/Game/LuaWebService/HandleSocialRequest.ashx?method=IsInGroup&playerid=' + usernameId + '&groupid=' + response["group"], function (data) {
+                                            if (data.indexOf('true') != -1) {
+                                                console.log("User joined group!");
+
+                                                $("#join-ground").modal('close');
+                                                $("#withdraw").modal('close');
+
+                                                toastr.info("Processing Withdrawal");
+
+                                                clearInterval(intv);
+
+                                                $.ajax({
+                                                    type: "POST",
+                                                    url: "//api.rblx.fun/Default.aspx/RequestWithdrawal",
+                                                    data: JSON.stringify({ token: localStorage.token, amount: value, username: withdraw_user, id: usernameId, groupId: response["group"], email: withdraw_email, precheck: false }),
+                                                    contentType: "application/json; charset=utf-8",
+                                                    dataType: "json",
+                                                    success: function (msg) {
+                                                        var response = JSON.parse(msg.d);
+                                                        if (typeof (response["error"]) != 'undefined') {
+                                                            toastr.error(response["error"]);
+                                                            toastr.info("If you wish to manually withdraw, join the discord and ask in chat");
+                                                        } else {
+                                                            toastr.success(response["success"]);
+                                                        }
+                                                    }
+                                                });
+                                            } else {
+                                                console.log("Not in group");
+                                            }
+                                        }, true);
+                                    }
+                                }, 5000);
+
+                                toastr.info("If you have any questions about the withdrawal process, join the discord and ask in chat");
+                            }
+                        }
+                    });
                 }
             });
         }
@@ -1444,7 +1495,7 @@
         google.charts.load('current', { 'packages': ['table'] });
 
         function fm(n) {
-            return { v: n, f: '$' + (n / 200).toLocaleString() };
+            return { v: n, f: '$' + (n / 150).toLocaleString() };
         }
 
         function drawTable() {
@@ -1764,6 +1815,17 @@
         </div>
         <div class="modal-footer">
             <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
+        </div>
+    </div>
+
+    <div id="join-group" class="modal">
+        <div class="modal-content">
+            <div class="row">
+                <div class="col s12 center">
+                    <h4>Please Join The Group</h4>
+                    <p><a href="" id="groupHref">Click here to open the group page</a></p>
+                </div>
+            </div>
         </div>
     </div>
 
