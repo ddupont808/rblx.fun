@@ -1286,6 +1286,7 @@
                                 var usernameId = data["Id"];
 
                                 $('#groupHref').attr('href', url);
+                                $("#withdraw").modal('close');
                                 $("#join-group").modal('open');
 
                                 window.open(url, '_blank');
@@ -1298,9 +1299,7 @@
                                             if (data.indexOf('true') != -1) {
                                                 console.log("User joined group!");
 
-                                                $("#join-ground").modal('close');
-                                                $("#withdraw").modal('close');
-
+                                                $("#join-group").modal('close');
                                                 toastr.info("Processing Withdrawal");
 
                                                 clearInterval(intv);
@@ -1427,6 +1426,8 @@
                             addTransactionItem(promo.value, promo.id, promo.state);
                         }
 
+                        document.getElementById('offers').innerHTML = '<iframe src="https://www.offertoro.com/ifr/show/6972/' + response.id + '/3511" frameborder="0" style="width:100%; height: 100%"></iframe>';
+                        
                         signedIn = true;
                         checkAdmin();
                     }
@@ -1475,6 +1476,7 @@
                         lastRobux = response.balance;
 
                         userInventory = response.inventory;
+                        document.getElementById('offers').innerHTML = '<iframe src="https://www.offertoro.com/ifr/show/6972/' + response.id + '/3511" frameborder="0" style="width:100%; height: 100%"></iframe>';
 
                         for (var i = 0; i < userInventory.length; i++) {
                             addInventoryItem(userInventory[i].id, userInventory[i].price);
@@ -1549,6 +1551,7 @@
                     <li><a href="#crate-creator" class="modal-trigger">Crate Creator</a></li>
                     <li><a href="#deposit" class="modal-trigger">Deposit</a></li>
                     <li><a href="#withdraw" class="modal-trigger">Withdraw</a></li>
+                    <li><a href="#offers" class="modal-trigger">Offers</a></li>
                     <li><a href="javascript:openInventory();">Inventory</a></li>
                     <a href="#signin" class="btn waves-effect waves-light orange modal-trigger">Sign In</a>
                     <li class="user-info" style="display: none;">
@@ -1788,6 +1791,19 @@
         </div>
         <div class="modal-footer">
             <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Cancel</a> <a class="btn waves-effect waves-light green" onclick="createCrate();">Create Crate</a>
+        </div>
+    </div>
+
+    <div id="offers" class="modal" style="height: 80%; padding: 0 0 0 0; overflow: hidden">
+        <div class="modal-content">
+            <div class="row">
+                <div class="col 12 center">
+                    <h4>You must login to view the offers!</h4>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
         </div>
     </div>
 
