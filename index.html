@@ -1225,6 +1225,29 @@
             }
         });
 
+        function getOfferToro() {
+            $.ajax({
+                type: "POST",
+                url: "//api.rblx.fun/Default.aspx/GetOfferToro",
+                data: JSON.stringify({ token: localStorage.token }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (msg) {
+                    var response = JSON.parse(msg.d);
+                    if (typeof (response["error"]) != 'undefined') {
+                        $('#offers').text(response["error"]);
+                    } else {
+                        $('#offers').html('');
+                        $('<iframe/>', {
+                            src: response["success"],
+                            frameborder: '0',
+                            style: 'width:100%; height: 100%'
+                        }).appendTo('#offers');
+                    }
+                }
+            });
+        }
+
         function getParameterByName(name) {
             name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
             var regexS = "[\\?&]" + name + "=([^&#]*)";
@@ -1386,7 +1409,7 @@
                         }
 
                         if (document.getElementById('offers').innerHTML.indexOf('iframe') == -1) {
-                            document.getElementById('offers').innerHTML = '<iframe src="https://www.offertoro.com/ifr/show/6972/' + response.id + '/3511" frameborder="0" style="width:100%; height: 100%"></iframe>';
+                            getOfferToro();
                         }
 
                         document.getElementById('promoDiv').innerHTML = "";
@@ -1443,8 +1466,8 @@
                             addTransactionItem(promo.value, promo.id, promo.state);
                         }
 
-                        document.getElementById('offers').innerHTML = '<iframe src="https://www.offertoro.com/ifr/show/6972/' + response.id + '/3511" frameborder="0" style="width:100%; height: 100%"></iframe>';
-                        
+                        getOfferToro();
+
                         signedIn = true;
                         checkAdmin();
                     }
@@ -1493,7 +1516,7 @@
                         lastRobux = response.balance;
 
                         userInventory = response.inventory;
-                        document.getElementById('offers').innerHTML = '<iframe src="https://www.offertoro.com/ifr/show/6972/' + response.id + '/3511" frameborder="0" style="width:100%; height: 100%"></iframe>';
+                        getOfferToro();
 
                         for (var i = 0; i < userInventory.length; i++) {
                             addInventoryItem(userInventory[i].id, userInventory[i].price);
@@ -1996,23 +2019,89 @@
         </div>
     </div>
 
-    <div class="section no-pad-bot" id="index-banner">
-        <div class="container">
-            <br><br>
-            <h1 class="header center orange-text">Welcome to <a href="https://rblx.fun">RBLX.Fun</a></h1>
-            <div class="row center">
-                <h5 class="header col s12 light"><a href="https://rblx.fun">RBLX.Fun</a> is a crate opening site where you can play and win items. Sign up to begin opening crates and win the items of your dreams</h5>
+    <div class="section no-pad-bot no-pad-top" id="index-banner">
+        <div class="row">
+            <div class="col s10">
+                <div class="row">
+                    <div class="jumbotron">
+                        <h1 class="header left">Welcome to RBLX.Fun</h1>
+                        <div class="row left">
+                            <h5 class="header col s12 light"><a href="https://rblx.fun">RBLX.Fun</a> is a crate opening site where you can play and win items. Sign up to begin opening crates and win the items of your dreams</h5>
+                        </div>
+                        <div class="row left">
+                            <a href="#signin" id="discord-button" class="btn-large waves-effect waves-light orange modal-trigger" onclick="$('[href=\'#sign-in\']').click()">SIGN IN</a>
+                            <a target="_blank" href="https://discord.gg/UjVkpkF" id="discord-button" class="btn-large waves-effect waves-light purple"><i class="left material-icons">chat</i>DISCORD</a>
+                            <a href="#signin" id="discord-button" class="btn-large waves-effect waves-light orange modal-trigger" onclick="$('[href=\'#sign-up\']').click()">SIGN UP</a>
+                        </div>
+                        <div class="row right">
+                            <iframe data-aa='589396' src='//ad.a-ads.com/589396?size=468x60' scrolling='no' style='width:468px; height:60px; border:0px; padding:0;overflow:hidden' allowtransparency='true'></iframe>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div style="height: 1px; overflow: hidden; background-color: #e0e0e0;"></div>
+                    <br>
+
+                    <div class="row center" id="crates">
+                    </div>
+                </div>
             </div>
-            <div class="row center">
-                <a href="#signin" id="discord-button" class="btn-large waves-effect waves-light orange modal-trigger" onclick="$('[href=\'#sign-in\']').click()">SIGN IN</a>
-                <a target="_blank" href="https://discord.gg/UjVkpkF" id="discord-button" class="btn-large waves-effect waves-light purple"><i class="left material-icons">chat</i>DISCORD</a>
-                <a href="#signin" id="discord-button" class="btn-large waves-effect waves-light orange modal-trigger" onclick="$('[href=\'#sign-up\']').click()">SIGN UP</a>
-            </div>
-            <div class="row center">
-                <iframe data-aa='589396' src='//ad.a-ads.com/589396?size=468x60' scrolling='no' style='width:468px; height:60px; border:0px; padding:0;overflow:hidden' allowtransparency='true'></iframe>
-            </div>
-            <br><br>
-            <div class="row center" id="crates">
+            <div class="col s2" style="background: #2ea0d4; position: fixed; height: 100%; right: 0px; padding: 0 0 0 0">
+                <div style="height: calc(100% - 109px); padding: 4px 4px 4px 4px" id="chatBox">
+                    
+                </div>
+                <div style="height: 45px; padding: 0 0 0 5px; background: #0d72a0;" class="z-depth-1">
+                    <input placeholder="Send a message" style="color: black" id="discordInput"/>
+                    <script>
+                        $('#discordInput').keyup(function (e) {
+                            if (e.keyCode == 13 && $(this).val() != "") {
+                                var user = 'Anonymous';
+                                if ($('#nav-username').text() != '') {
+                                    user = $('#nav-username').text();
+                                }
+
+                                $.ajax({
+                                    type: 'POST',
+                                    url: 'https://discordapp.com/api/webhooks/353758997523857410/1aqbm4Rwdna7j_ZoK_U51pCPKKciQ_ciT5d-t1VB3v7V67d3NFXKCsbRHn91kMFb8tJw/slack',
+                                    data: {
+                                        'username': user,
+                                        'text': $(this).val()
+                                    }
+                                });
+
+                                $(this).val('');
+                            }
+                        });
+
+                        var lastTime = 0;
+                        setInterval(function () {
+                            $.ajax({
+                                type: 'GET',
+                                url: 'https://api.rblx.fun/ReceiveChat.aspx',
+                                success: function (data) {
+                                    var msgs = data.split('\n');
+                                    for (var i = 0; i < msgs.length; i++) {
+                                        var msg = msgs[i];
+                                        var msgTime = parseInt(msg.substring(0, msg.indexOf(':')));
+                                        var msg = msg.substring(msg.indexOf(':') + 1);
+
+                                        if (msgTime > lastTime) {
+                                            lastTime = msgTime;
+                                            $('<div/>', {
+                                                text: msg
+                                            }).appendTo('#chatBox');
+
+                                            $('<div/>', {
+                                                style: 'height: 1px;overflow: hidden;background-color: rgba(13, 114, 160, 0.23);'
+                                            }).appendTo('#chatBox');
+                                        }
+                                    }
+                                }
+                            })
+                        }, 1000);
+                    </script>
+                </div>
             </div>
         </div>
     </div>
