@@ -2076,7 +2076,7 @@
                         });
 
                         var lastTime = 0;
-                        $.getJSON('https://cdn.rawgit.com/ChaseFlorell/jQuery.ProfanityFilter/master/swearWords.json', function (data) {
+                        $.getJSON('https://cdn.rawgit.com/ChaseFlorell/jQuery.ProfanityFilter/master/swearWords.json', function (swearInfo) {
                             setInterval(function () {
                                 $.ajax({
                                     type: 'GET',
@@ -2096,7 +2096,7 @@
                                                 $('<div/>')
                                                     .html('<b>' + $('<div/>').text(sendr).html() + '</b>: ' + $('<div/>').text(msg).html())
                                                     .profanityFilter({
-                                                        customSwears: data,
+                                                        customSwears: swearInfo,
                                                         replaceWith: '#'
                                                     })
                                                     .appendTo('#chatBox');
