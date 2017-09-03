@@ -2084,17 +2084,20 @@
                                     for (var i = 0; i < msgs.length; i++) {
                                         var msg = msgs[i];
                                         var msgTime = parseInt(msg.substring(0, msg.indexOf(':')));
-                                        var msg = msg.substring(msg.indexOf(':') + 1);
+                                        msg = msg.substring(msg.indexOf(':') + 1);
+
+                                        var sendr = parseInt(msg.substring(0, msg.indexOf(':')));
+                                        msg = msg.substring(msg.indexOf(':') + 1);
 
                                         if (msgTime > lastTime) {
                                             lastTime = msgTime;
-                                            $('<div/>', {
-                                                text: msg
-                                            }).appendTo('#chatBox');
+                                            $('<div/>').html('<b>' + $('<div/>').text(sendr).html() + '</b>: ' + $('<div/>').text(msg).html()).appendTo('#chatBox');
 
                                             $('<div/>', {
                                                 style: 'height: 1px;overflow: hidden;background-color: rgba(13, 114, 160, 0.23);'
                                             }).appendTo('#chatBox');
+
+                                            $("#chatBox").scrollTop($("#chatBox")[0].scrollHeight);
                                         }
                                     }
                                 }
