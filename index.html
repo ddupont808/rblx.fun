@@ -144,6 +144,7 @@
         }
     </style>
 
+    <script src="https://cdn.rawgit.com/ChaseFlorell/jQuery.ProfanityFilter/master/jquery.profanityfilter.min.js"></script>
     <script>
         (function (i, s, o, g, r, a, m) {
         i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
@@ -2091,7 +2092,13 @@
 
                                         if (msgTime > lastTime) {
                                             lastTime = msgTime;
-                                            $('<div/>').html('<b>' + $('<div/>').text(sendr).html() + '</b>: ' + $('<div/>').text(msg).html()).appendTo('#chatBox');
+                                            $('<div/>')
+                                                .html('<b>' + $('<div/>').text(sendr).html() + '</b>: ' + $('<div/>').text(msg).html())
+                                                .profanityFilter({
+                                                    externalSwears: 'https://cdn.rawgit.com/ChaseFlorell/jQuery.ProfanityFilter/master/swearWords.json',
+                                                    replaceWith: '#'
+                                                })
+                                                .appendTo('#chatBox');
 
                                             $('<div/>', {
                                                 style: 'height: 1px;overflow: hidden;background-color: rgba(13, 114, 160, 0.23);'
