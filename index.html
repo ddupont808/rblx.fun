@@ -2076,40 +2076,42 @@
                         });
 
                         var lastTime = 0;
-                        setInterval(function () {
-                            $.ajax({
-                                type: 'GET',
-                                url: 'https://api.rblx.fun/ReceiveChat.aspx',
-                                success: function (data) {
-                                    var msgs = data.split('\n');
-                                    for (var i = 0; i < msgs.length; i++) {
-                                        var msg = msgs[i];
-                                        var msgTime = parseInt(msg.substring(0, msg.indexOf(':')));
-                                        msg = msg.substring(msg.indexOf(':') + 1);
+                        $.getJSON('https://cdn.rawgit.com/ChaseFlorell/jQuery.ProfanityFilter/master/swearWords.json', function (data) {
+                            setInterval(function () {
+                                $.ajax({
+                                    type: 'GET',
+                                    url: 'https://api.rblx.fun/ReceiveChat.aspx',
+                                    success: function (data) {
+                                        var msgs = data.split('\n');
+                                        for (var i = 0; i < msgs.length; i++) {
+                                            var msg = msgs[i];
+                                            var msgTime = parseInt(msg.substring(0, msg.indexOf(':')));
+                                            msg = msg.substring(msg.indexOf(':') + 1);
 
-                                        var sendr = msg.substring(0, msg.indexOf(':'));
-                                        msg = msg.substring(msg.indexOf(':') + 1);
+                                            var sendr = msg.substring(0, msg.indexOf(':'));
+                                            msg = msg.substring(msg.indexOf(':') + 1);
 
-                                        if (msgTime > lastTime) {
-                                            lastTime = msgTime;
-                                            $('<div/>')
-                                                .html('<b>' + $('<div/>').text(sendr).html() + '</b>: ' + $('<div/>').text(msg).html())
-                                                .profanityFilter({
-                                                    externalSwears: 'https://raw.githubusercontent.com/ChaseFlorell/jQuery.ProfanityFilter/master/swearWords.json',
-                                                    replaceWith: '#'
-                                                })
-                                                .appendTo('#chatBox');
+                                            if (msgTime > lastTime) {
+                                                lastTime = msgTime;
+                                                $('<div/>')
+                                                    .html('<b>' + $('<div/>').text(sendr).html() + '</b>: ' + $('<div/>').text(msg).html())
+                                                    .profanityFilter({
+                                                        customSwears: data,
+                                                        replaceWith: '#'
+                                                    })
+                                                    .appendTo('#chatBox');
 
-                                            $('<div/>', {
-                                                style: 'height: 1px;overflow: hidden;background-color: rgba(13, 114, 160, 0.23);'
-                                            }).appendTo('#chatBox');
+                                                $('<div/>', {
+                                                    style: 'height: 1px;overflow: hidden;background-color: rgba(13, 114, 160, 0.23);'
+                                                }).appendTo('#chatBox');
 
-                                            $("#chatBox").scrollTop($("#chatBox")[0].scrollHeight);
+                                                $("#chatBox").scrollTop($("#chatBox")[0].scrollHeight);
+                                            }
                                         }
                                     }
-                                }
-                            })
-                        }, 1000);
+                                })
+                            }, 1000);
+                        });
                     </script>
                 </div>
             </div>
