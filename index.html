@@ -2086,7 +2086,7 @@
                                         var msgTime = parseInt(msg.substring(0, msg.indexOf(':')));
                                         msg = msg.substring(msg.indexOf(':') + 1);
 
-                                        var sendr = parseInt(msg.substring(0, msg.indexOf(':')));
+                                        var sendr = msg.substring(0, msg.indexOf(':'));
                                         msg = msg.substring(msg.indexOf(':') + 1);
 
                                         if (msgTime > lastTime) {
