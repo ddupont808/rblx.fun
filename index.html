@@ -21,6 +21,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+
     <style>
         .modal {
             max-height: 90%;
@@ -1586,13 +1588,14 @@
 <body>
     <div class="navbar-fixed">
         <nav class="light-blue lighten-1" role="navigation">
-            <div class="nav-wrapper container">
-                <a id="logo-container" href="#" class="brand-logo left"><img src="https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/logo.png" style="padding-top: 4px; height: 60px;" /></a>
+            <div class="nav-wrapper">
+                <a id="logo-container" href="#" class="brand-logo left" style="padding-left: 12px"><img src="https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/logo.png" style="padding-top: 4px; height: 60px;" /></a>
                 <ul class="right">
                     <li><a href="#crate-creator" class="modal-trigger">Crate Creator</a></li>
                     <li><a href="#deposit" class="modal-trigger">Deposit</a></li>
                     <li><a href="#withdraw" class="modal-trigger">Withdraw</a></li>
                     <li><a href="#offers" class="modal-trigger">Offers</a></li>
+                    <li><a href="#faucet" class="modal-trigger">Faucet</a></li>
                     <li><a href="javascript:openInventory();">Inventory</a></li>
                     <a href="#signin" class="btn waves-effect waves-light orange modal-trigger">Sign In</a>
                     <li class="user-info" style="display: none;">
@@ -1845,6 +1848,116 @@
         </div>
         <div class="modal-footer">
             <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
+        </div>
+    </div>
+
+    <div id="faucet" class="modal">
+        <div class="modal-content">
+            <div class="row col 12 center">
+                <h1>Hourly <span class="green-text">R$</span> Faucet</h1>
+            </div>
+            <div class="row center">
+                <h5>If you've deposited 750 <img style="max-height: 20px; transform:translateY(5px);" src="https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/funds-green.png">
+                or more you get access to the RBLX.Fun Faucet, which gives you access to 5 <img style="max-height: 20px; transform:translateY(5px);" src="https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/funds-green.png"> per hour for FREE</h5>
+            </div>
+            <div class="row center">
+                <p>To claim your 5 <img style="max-height: 20px; transform:translateY(5px);" src="https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/funds-green.png"> please do the captcha below</p>
+            </div>
+            <div class="row center" id="captchaBox" style="display: none">
+                <div class="g-recaptcha" style="display: inline-block" data-sitekey="6LfbIioUAAAAAFUFLDuN5N_swxyblRhFxZSaN-ri" data-callback="correctCaptcha"></div>
+            </div>
+            <div class="row center" id="errorBox">
+                <h4 class="red-text"></h4>
+            </div>
+            <div class="row center">
+                <a class="btn waves-effect waves-light green" id="claimButton" disabled="disabled" href="javascript:claimFaucet();">Claim 5 <img style="max-height: 20px; transform:translateY(5px);" src="https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/funds.png"></a>
+            </div>
+
+            <script>
+                var correctCaptcha = function (response) {
+                    document.getElementById('claimButton').removeAttribute('disabled');
+                    window.faucetResponse = response;
+                };
+
+                var claimFaucet = function () {
+                    $.ajax({
+                        type: "POST",
+                        url: "//api.rblx.fun/Default.aspx/ClaimFaucet",
+                        data: JSON.stringify({ token: localStorage.token, response: window.faucetResponse }),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (msg) {
+                            var response = JSON.parse(msg.d);
+                            if (typeof (response["error"]) != 'undefined') {
+                                toastr["error"](response["error"]);
+                            } else {
+                                toastr["success"](response["success"]);
+
+                                $('#captchaBox').hide();
+                                $('#errorBox').show();
+                                $('#errorBox h4').text("");
+                                $('#claimButton').attr('disabled', 'disabled');
+
+                                grecaptcha.reset();
+                                clearInterval(window.faucetInterval);
+                                window.faucetInterval = setInterval(faucetCheck(), 15000);
+                            }
+                        }
+                    });
+                }
+
+                var faucetCheck = function () {
+                    if (signedIn) {
+                        $.ajax({
+                            type: "POST",
+                            url: "//api.rblx.fun/Default.aspx/GetFaucetInfo",
+                            data: JSON.stringify({ token: localStorage.token }),
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (msg) {
+                                var response = JSON.parse(msg.d);
+                                if (typeof (response["error"]) != 'undefined') {
+                                    $('#captchaBox').hide();
+                                    $('#errorBox').show();
+                                    $('#errorBox h4').text(response["error"]);
+                                    $('#claimButton').attr('disabled', 'disabled');
+                                } else {
+                                    var currentTime = response["success"];
+                                    var serverTime = response["servertime"];
+
+                                    var timeSinceFaucet = serverTime - currentTime;
+                                    if (true || timeSinceFaucet < 60 * 60 * 1000) {
+                                        for (var i = 0; i < 15; i++) {
+                                            (function (sec) {
+                                                setTimeout(function () {
+                                                    var d = new Date(timeSinceFaucet + (sec * 1000));
+                                                    $('#captchaBox').hide();
+                                                    $('#errorBox').show();
+                                                    $('#claimButton').attr('disabled', 'disabled');
+                                                    $('#errorBox h4').text(d.getMinutes() + ":" + d.getSeconds() + " remaining");
+                                                }, sec * 1000);
+                                            })(i);
+                                        }
+                                    } else {
+                                        document.getElementById('claimButton').removeAttribute('disabled');
+                                        $('#captchaBox').show();
+                                        $('#errorBox').hide();
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        $('#captchaBox').hide();
+                        $('#errorBox').show();
+                        $('#errorBox h4').text("You must login to use the faucet!");
+                        $('#claimButton').attr('disabled', 'disabled');
+                    }
+
+                    return faucetCheck();
+                };
+
+                window.faucetInterval = setInterval(faucetCheck(), 15000);
+            </script>
         </div>
     </div>
 
