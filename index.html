@@ -1423,6 +1423,9 @@
 
                         signedIn = true;
                         checkAdmin();
+
+                        clearInterval(window.faucetInterval);
+                        window.faucetInterval = setInterval(faucetCheck(), 15000);
                     }
                 },
                 error: function () {
@@ -1473,6 +1476,9 @@
 
                         signedIn = true;
                         checkAdmin();
+                        
+                        clearInterval(window.faucetInterval);
+                        window.faucetInterval = setInterval(faucetCheck(), 15000);
                     }
                 },
                 error: function () {
@@ -1526,6 +1532,9 @@
                         }
 
                         signedIn = true;
+
+                        clearInterval(window.faucetInterval);
+                        window.faucetInterval = setInterval(faucetCheck(), 15000);
                     }
                 },
                 error: function () {
