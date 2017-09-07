@@ -1926,11 +1926,11 @@
                                     var serverTime = response["servertime"];
 
                                     var timeSinceFaucet = serverTime - currentTime;
-                                    if (true || timeSinceFaucet < 60 * 60 * 1000) {
+                                    if (timeSinceFaucet < 60 * 60 * 1000) {
                                         for (var i = 0; i < 15; i++) {
                                             (function (sec) {
                                                 setTimeout(function () {
-                                                    var d = new Date(timeSinceFaucet + (sec * 1000));
+                                                    var d = new Date((60 * 60 * 1000) - (timeSinceFaucet) - (sec * 1000));
                                                     $('#captchaBox').hide();
                                                     $('#errorBox').show();
                                                     $('#claimButton').attr('disabled', 'disabled');
