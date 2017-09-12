@@ -2188,12 +2188,11 @@
                                 }
 
                                 $.ajax({
-                                    type: 'POST',
-                                    url: 'https://api.rblx.fun/Default.aspx/Chat',
-                                    data: {
-                                        'token': localStorage.token,
-                                        'msg': $(this).val()
-                                    }
+                                    type: "POST",
+                                    url: "//api.rblx.fun/Default.aspx/GetJson",
+                                    data: JSON.stringify({ token: localStorage.token, msg: $(this).val() }),
+                                    contentType: "application/json; charset=utf-8",
+                                    dataType: "json"
                                 });
 
                                 $(this).val('');
