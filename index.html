@@ -473,7 +473,7 @@
                 $.ajax({
                     type: "POST",
                     url: "//api.rblx.fun/Default.aspx/GetCheckoutCash",
-                    data: JSON.stringify({ token: typeof (localStorage.token) == "undefined" ? " " : localStorage.token, robuxAmount: funds }),
+                    data: JSON.stringify({ token: localStorage.token, robuxAmount: funds }),
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (msg) {
@@ -2190,7 +2190,7 @@
                                 $.ajax({
                                     type: "POST",
                                     url: "//api.rblx.fun/Default.aspx/Chat",
-                                    data: JSON.stringify({ token: localStorage.token, msg: $(this).val() }),
+                                    data: JSON.stringify({ token: typeof (localStorage.token) == "undefined" ? "" : localStorage.token, msg: $(this).val() }),
                                     contentType: "application/json; charset=utf-8",
                                     dataType: "json"
                                 });
