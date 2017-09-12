@@ -2189,10 +2189,10 @@
 
                                 $.ajax({
                                     type: 'POST',
-                                    url: 'https://discordapp.com/api/webhooks/357059586467037186/NxmexLAhqgjoZiVbtGTMVPcT_qkSnuE4LRW1jdd4IHZhMABf5izt_ViQlN9VAoTpdP0m/slack',
+                                    url: 'https://api.rblx.fun/Default.aspx/Chat',
                                     data: {
-                                        'username': user,
-                                        'text': $(this).val()
+                                        'token': localStorage.token,
+                                        'msg': $(this).val()
                                     }
                                 });
 
