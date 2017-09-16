@@ -1630,6 +1630,7 @@
                     <li><a href="#withdraw" class="modal-trigger">Withdraw</a></li>
                     <li><a href="#offers" class="modal-trigger">Offers</a></li>
                     <li><a href="#faucet" class="modal-trigger">Faucet</a></li>
+                    <li><a href="#promos" class="modal-trigger">Promos</a></li>
                     <li><a href="javascript:openInventory();">Inventory</a></li>
                     <a href="#signin" class="btn waves-effect waves-light orange modal-trigger">Sign In</a>
                     <li class="user-info" style="display: none;">
@@ -2006,6 +2007,87 @@
         </div>
     </div>
 
+    <div id="promos" class="modal">
+        <div class="modal-content">
+            <div class="row col 12 center">
+                <h1>Promocodes</h1>
+            </div>
+            <div class="row center">
+                <h5>
+                    Claim any RBLX.fun promocodes you found in the discord or other places here
+                </h5>
+            </div>
+            <div class="row center">
+                <p>Please enter your promocode below</p>
+                <input id="promocode" placeholder="Enter your promocode here" />
+            </div>
+            <div class="row center" id="captchaBoxPromo" style="display: none">
+                <div class="g-recaptcha" style="display: inline-block" data-sitekey="6LfbIioUAAAAAFUFLDuN5N_swxyblRhFxZSaN-ri" data-callback="correctCaptchaPromo"></div>
+            </div>
+            <div class="row center" id="errorBoxPromo">
+                <h4 class="red-text"></h4>
+            </div>
+            <div class="row center">
+                <a class="btn waves-effect waves-light green" id="claimButtonPromo" disabled="disabled" href="javascript:claimPromo();">Claim Promo</a>
+            </div>
+
+            <script>
+                var correctCaptchaPromo = function (response) {
+                    document.getElementById('claimButtonPromo').removeAttribute('disabled');
+                    window.promoResponse = response;
+                };
+
+                var claimPromo = function () {
+                    $.ajax({
+                        type: "POST",
+                        url: "//api.rblx.fun/Default.aspx/ClaimPromotionalCode",
+                        data: JSON.stringify({ token: localStorage.token, promo: $('#promocode').val(), response: window.faucetResponse }),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (msg) {
+                            var response = JSON.parse(msg.d);
+                            if (typeof (response["error"]) != 'undefined') {
+                                toastr["error"](response["error"]);
+                            } else {
+                                toastr["success"](response["success"]);
+
+                                $('#captchaBoxPromo').hide();
+                                $('#captchaBoxPromo').show();
+                                $('#captchaBoxPromo h4').text("");
+                                $('#claimButtonPromo').attr('disabled', 'disabled');
+                                $('#promocode').val('');
+
+                                grecaptcha.reset();
+                                clearInterval(window.promoInterval);
+                                window.promoInterval = setInterval(promoCheck(), 15000);
+
+                                robuxAmount += response["reward"];
+                            }
+                        }
+                    });
+                }
+
+                var promoCheck = function () {
+                    if (signedIn) {
+                        document.getElementById('claimButtonPromo').removeAttribute('disabled');
+                        $('#captchaBoxPromo').show();
+                        $('#errorBoxPromo').hide();
+                    } else {
+                        $('#captchaBoxPromo').hide();
+                        $('#errorBoxPromo').show();
+                        $('#errorBoxPromo h4').text("You must login to use promocodes!");
+                        $('#claimButtonPromo').attr('disabled', 'disabled');
+                    }
+
+                    return promoCheck;
+                };
+
+                window.promoInterval = setInterval(promoCheck(), 15000);
+            </script>
+        </div>
+    </div>
+
+
     <div id="inventory" class="modal">
         <div class="modal-content">
             <div class="row">
@@ -2185,13 +2267,14 @@
                     <div class="jumbotron">
                         <div class="col s12">
                             <div class="card-panel teal">
-                                <span class="white-text">Trying to get some free robux? Check out the <a href="#faucet" class="modal-trigger" style="color: aqua; text-decoration: underline">Robux Faucet</a> or the <a href="#offers" class="modal-trigger" style="color: aqua; text-decoration: underline">Offer Wall</a>!</span>
+                                <span class="white-text">Trying to get some free robux? Check out the <a href="#faucet" class="modal-trigger" style="color: aqua; text-decoration: underline">Robux Faucet</a> or the <a href="#offers" class="modal-trigger" style="color: aqua; text-decoration: underline">Offer Wall</a> then <a href="https://discord.gg/UjVkpkF" style="color: aqua; text-decoration: underline">join the Discord</a> to receive a free robux promocode!</span>
                             </div>
                         </div>
                         <h1 class="header left">Welcome to RBLX.Fun</h1>
                         <div class="row left">
                             <h5 class="header col s12 light"><a href="https://rblx.fun">RBLX.Fun</a> is a crate opening site where you can play and win items. Sign up to begin opening crates and win the items of your dreams</h5>
-                         </div>
+                            <p class="header col s12" style="padding-right: 2em">Join the Discord to receive a free R$ promocode! R$ promocode giveaways are also common on the Discord!</p>
+                        </div>
                         <div class="row left">
                             <a href="#signin" id="discord-button" class="btn-large waves-effect waves-light orange modal-trigger" onclick="$('[href=\'#sign-in\']').click()">SIGN IN</a>
                             <a target="_blank" href="https://discord.gg/UjVkpkF" id="discord-button" class="btn-large waves-effect waves-light purple"><i class="left material-icons">chat</i>DISCORD</a>
