@@ -1451,6 +1451,9 @@
 
                         clearInterval(window.faucetInterval);
                         window.faucetInterval = setInterval(faucetCheck(), 15000);
+
+                        clearInterval(window.promoInterval);
+                        window.promoInterval = setInterval(promoCheck(), 15000);
                     }
                 },
                 error: function () {
@@ -1504,6 +1507,9 @@
                         
                         clearInterval(window.faucetInterval);
                         window.faucetInterval = setInterval(faucetCheck(), 15000);
+
+                        clearInterval(window.promoInterval);
+                        window.promoInterval = setInterval(promoCheck(), 15000);
                     }
                 },
                 error: function () {
@@ -1560,6 +1566,9 @@
 
                         clearInterval(window.faucetInterval);
                         window.faucetInterval = setInterval(faucetCheck(), 15000);
+
+                        clearInterval(window.promoInterval);
+                        window.promoInterval = setInterval(promoCheck(), 15000);
                     }
                 },
                 error: function () {
@@ -2041,7 +2050,7 @@
                     $.ajax({
                         type: "POST",
                         url: "//api.rblx.fun/Default.aspx/ClaimPromotionalCode",
-                        data: JSON.stringify({ token: localStorage.token, promo: $('#promocode').val(), response: window.faucetResponse }),
+                        data: JSON.stringify({ token: localStorage.token, promo: $('#promocode').val(), response: ''/*window.promoResponse*/ }),
                         contentType: "application/json; charset=utf-8",
                         dataType: "json",
                         success: function (msg) {
@@ -2051,8 +2060,8 @@
                             } else {
                                 toastr["success"](response["success"]);
 
-                                $('#captchaBoxPromo').hide();
-                                $('#captchaBoxPromo').show();
+                                //$('#captchaBoxPromo').hide();
+                                //$('#captchaBoxPromo').show();
                                 $('#captchaBoxPromo h4').text("");
                                 $('#claimButtonPromo').attr('disabled', 'disabled');
                                 $('#promocode').val('');
@@ -2070,10 +2079,10 @@
                 var promoCheck = function () {
                     if (signedIn) {
                         document.getElementById('claimButtonPromo').removeAttribute('disabled');
-                        $('#captchaBoxPromo').show();
+                        //$('#captchaBoxPromo').show();
                         $('#errorBoxPromo').hide();
                     } else {
-                        $('#captchaBoxPromo').hide();
+                        //$('#captchaBoxPromo').hide();
                         $('#errorBoxPromo').show();
                         $('#errorBoxPromo h4').text("You must login to use promocodes!");
                         $('#claimButtonPromo').attr('disabled', 'disabled');
