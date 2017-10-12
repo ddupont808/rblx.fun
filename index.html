@@ -65,7 +65,9 @@
         }
 
         wss.onopen = function (e) {
-            console.log("loaded");
+            wss.send(JSON.stringify({
+                action: 'hello'
+            }))
         };
 
         var oldConnections = 0;
