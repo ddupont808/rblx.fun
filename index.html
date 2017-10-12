@@ -66,20 +66,6 @@
 
         wss.onopen = function (e) {
             console.log("loaded");
-            
-            $('#offerwall1').html('');
-            $('<iframe/>', {
-                src: 'https://wall.adgaterewards.com/naiWrg/' + getCookie('SESSIONID'),
-                frameborder: '0',
-                style: 'width:100%; height: 2000px'
-            }).appendTo('#offerwall1');
-
-            $('#offerwall2').html('');
-            $('<iframe/>', {
-                src: 'https://www.offertoro.com/ifr/show/6972/' + getCookie('SESSIONID') + '/3511',
-                frameborder: '0',
-                style: 'width:100%; height: 2000px'
-            }).appendTo('#offerwall2');
         };
 
         var oldConnections = 0;
@@ -89,7 +75,23 @@
 
         wss.onmessage = function (event) {
             var data = JSON.parse(event.data);
-            if (data.action == "update_balance") {
+            if (data.action == "set_token") {
+                document.cookie = 'SESSIONID=' + data.token;
+
+                $('#offerwall1').html('');
+                $('<iframe/>', {
+                    src: 'https://wall.adgaterewards.com/naiWrg/' + getCookie('SESSIONID'),
+                    frameborder: '0',
+                    style: 'width:100%; height: 2000px'
+                }).appendTo('#offerwall1');
+
+                $('#offerwall2').html('');
+                $('<iframe/>', {
+                    src: 'https://www.offertoro.com/ifr/show/6972/' + getCookie('SESSIONID') + '/3511',
+                    frameborder: '0',
+                    style: 'width:100%; height: 2000px'
+                }).appendTo('#offerwall2');
+            } else if (data.action == "update_balance") {
                 robuxAmount = data.robux;
             } else if (data.action == "error") {
                 Materialize.toast(data.message, 4000, 'red');
