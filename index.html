@@ -83,7 +83,7 @@
             var data = JSON.parse(event.data);
             if (data.action == "set_token") {
                 document.cookie = 'SESSIONID=' + data.token;
-
+				$('#referral').val(data.referral);
                 $('#offerwall1').html('');
                 $('<iframe/>', {
                     src: 'https://wall.adgaterewards.com/naiWrg/' + getCookie('SESSIONID'),
@@ -99,9 +99,11 @@
                 }).appendTo('#offerwall2');
             } else if (data.action == "update_balance") {
                 robuxAmount = data.robux;
+			} else if (data.action == "update_referrals") {
+				$('#referrals').text(data.referrals.toLocaleString());
 			} else if (data.action == 'update_jackpot') {
-				$('#lotteryJackpot').html(data.jackpot.toLocaleString());
-				$('#entries').html(data.entries);
+				$('#lotteryJackpot').text(data.jackpot == 250 ? "<250" : data.jackpot.toLocaleString());
+				$('#entries').text(data.entries);
             } else if (data.action == "error") {
                 Materialize.toast(data.message, 4000, 'red');
             } else if (data.action == "log") {
@@ -274,13 +276,28 @@
                     <div class="card horizontal grey lighten-3">
                         <div class="card-content col s4">
                             <strong>ROBUX Lottery</strong>
-                            <h5>Current Jackpot: <span class="green-text" id="lotteryJackpot">25,000</span><img style="max-height: 28px; transform: translateY(6px);" src="https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/funds-green.png"></h5>
+                            <h5>Current Jackpot: <span class="green-text" id="lotteryJackpot">0</span><img style="max-height: 28px; transform: translateY(6px);" src="https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/funds-green.png"></h5>
                             <h6>Your Entries: <span class="grey-text" id="entries">0</span></h6>
                             <a class="btn" onclick="buyEntry()">Buy Lottery Entry For 2 R$</a>
                         </div>
                         <div class="card-content col s8">
                             <strong>About the ROBUX Lottery</strong>
                             <p>The ROBUX Lottery is a lottery that rewards you with ROBUX! First you must do an offer from the offer wall below to get ROBUX, then once you have enough ROBUX to buy a lottery entry press the button on the left. The more lottery entries you buy, the better your chances of winning! The funds from buying entries will be put towards the jackpot. Every Saturday a random entry will be chosen and they will be rewarded with the jackpot! Buy an entry today and become rich</p>
+                        </div>
+                    </div>
+                </div>
+				
+                <div class="col s10 offset-s1">
+                    <div class="card horizontal grey lighten-3">
+                        <div class="card-content col s4">
+                            <strong>Referrals</strong>
+                            <h6>Share this link: </h6>
+							<input type="text" value="https://rblx.fun/?referral=" id="referral" />
+							<h6>You referred <span class="grey-text" id="referrals">0</span> people</h6>
+                        </div>
+                        <div class="card-content col s8">
+                            <strong><h4 style="margin-top: 0px">Earn ROBUX by inviting your friends!</h4></strong>
+                            <p>Need more ROBUX? Try sharing the link to the left! Every time someone uses your link you will get 50% of all ROBUX they earn on the site. That means if, for example, you go onto a Discord server with 100 people and share that link, you could easily earn up to 25,000 ROBUX if they do each a simple 500 ROBUX offer!</p>
                         </div>
                     </div>
                 </div>
