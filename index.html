@@ -67,7 +67,11 @@
         wss.onopen = function (e) {
             wss.send(JSON.stringify({
                 action: 'hello'
-            }))
+            }));
+			
+			wss.send(JSON.stringify({
+				action: 'get_jackpot'
+			}));
         };
 
         var oldConnections = 0;
@@ -95,8 +99,13 @@
                 }).appendTo('#offerwall2');
             } else if (data.action == "update_balance") {
                 robuxAmount = data.robux;
+			} else if (data.action == 'update_jackpot') {
+				$('#lotteryJackpot').html(data.jackpot.toLocaleString());
+				$('#entries').html(data.entries);
             } else if (data.action == "error") {
                 Materialize.toast(data.message, 4000, 'red');
+            } else if (data.action == "log") {
+                Materialize.toast(data.message, 4000, 'green');
             } else if (data.action == "withdraw_complete") {
                 Materialize.toast('Withdrawal complete!', 4000, 'green');
             } else if (data.action == "withdraw_group") {
@@ -177,6 +186,17 @@
                 }
             });
         }
+		
+		function buyEntry() {
+			if(robuxAmount < 2) {
+                Materialize.toast("Insufficient funds", 4000, 'red');
+                return;
+			}
+			
+			wss.send(JSON.stringify({
+				action: 'buy_entry'
+			}));
+		}
 
         function withdraw(value) {
             if (value < 1) {
@@ -255,8 +275,8 @@
                         <div class="card-content col s4">
                             <strong>ROBUX Lottery</strong>
                             <h5>Current Jackpot: <span class="green-text" id="lotteryJackpot">25,000</span><img style="max-height: 28px; transform: translateY(6px);" src="https://raw.githubusercontent.com/Cryption/rblx.fun/master/images/funds-green.png"></h5>
-                            <h6>Your Entries: <span class="grey-text">0</span></h6>
-                            <a class="btn" disabled="disabled">Buy Lottery Entry For 2 R$</a>
+                            <h6>Your Entries: <span class="grey-text" id="entries">0</span></h6>
+                            <a class="btn" onclick="buyEntry()">Buy Lottery Entry For 2 R$</a>
                         </div>
                         <div class="card-content col s8">
                             <strong>About the ROBUX Lottery</strong>
